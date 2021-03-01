@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+
+{% block body_class %}{{ block.super }} pinax-stripe-invoices{% endblock %}
+
+{% block content %}
+    <form action="" method="post" class="formContainer" autocomplete="off">
+        {% csrf_token %}
+        {{ form }}
+        <input type="Submit" value="Submit">
+    </form>
+{% endblock %}

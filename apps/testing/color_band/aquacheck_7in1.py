@@ -1,0 +1,29 @@
+from collections import OrderedDict
+
+PH_LOCATION = (200, 200)  # coordinate for ph testing
+
+PH_COLOR_BAND = OrderedDict({
+    6.2: (207, 141, 10),
+    6.8: (201, 118, 23),
+    7.2: (196, 95,34),
+    7.8: (190, 75, 43),
+    8.4: (182, 52, 51),
+})
+
+CALCIUM_HARDNESS_LOCATION = (100, 100)
+CALCIUM_HARDNESS_COLOR_BAND = OrderedDict({})
+
+FREE_CHLORINE_LOCATION = (100, 100)
+FREE_CHLORINE_COLOR_BAND = OrderedDict({})
+
+TOTAL_CHLORINE_LOCATION = (100, 100)
+TOTAL_CHLORINE_COLOR_BAND = OrderedDict({})
+
+TOTAL_BROMINE_LOCATION = (100, 100)
+TOTAL_BROMINE_COLOR_BAND = OrderedDict({})
+
+TOTAL_ALKAINITY_LOCATION = (100, 100)
+TOTAL_ALKAINITY_COLOR_BAND = OrderedDict({})
+
+CYANURIC_ACID_LOCATION = (100, 100)
+CYANURIC_ACID_COLOR_BAND = OrderedDict({})
