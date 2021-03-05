@@ -9,7 +9,8 @@ def get_strip_metadata(strip_name):
 
 
 def get_color_band(strip, chemistry):
-    return getattr(strip, f'{chemistry.value}_COLOR_BAND')
+    colorband_cls = getattr(strip, f'{chemistry.value}ColorBand')
+    return colorband_cls.get_colorband()
 
 
 def pick_color(image, chemistry_name, strip):
@@ -27,7 +28,7 @@ def color_distance(rgb1, rgb2):
 def calculate_distances(color, color_band):
     distances = {}
     for value, rgb in color_band.items():
-        distances[value] = colour.delta_E(rgb, color)
+        distances[value] = colour.delta_E(rgb, color, method='CIE 2000')
 
     return distances
 
@@ -37,14 +38,23 @@ def cal_linear_value(color_band, distances):
     min_value = min(distances, key=distances.get)
     max_value = max(distances, key=distances.get)
     closest_values = sorted(distances, key=distances.get)
-    cloest_color1 = color_band[closest_values[0]]
-    distance1 = distances[closest_values[0]]
-    cloest_color2 = color_band[closest_values[1]]
-    distance2 = distances[closest_values[1]]
+    closest_color = color_band[closest_values[0]]
+    cloest_color_distance = distances[closest_values[0]]
+    second_cloest_color = color_band[closest_values[1]]
+    second_cloest_color_distance = distances[closest_values[1]]
 
-    direct_distance = colour.delta_E(cloest_color1, cloest_color2)
-    print(distance1, distance2, direct_distance)
-    return distance1, distance2, direct_distance
+    direct_distance = colour.delta_E(closest_color, second_cloest_color, method='CIE 2000')
+
+    if second_cloest_color_distance > direct_distance:
+        return closest_values[0]
+
+    print(distances)
+    # todo this is incorrect
+    percent = cloest_color_distance / (cloest_color_distance + second_cloest_color_distance)
+    if closest_values[1] > closest_values[0]:
+        return closest_values[0] + abs(closest_values[1] - closest_values[0]) * percent
+    else:
+        return closest_values[0] - abs(closest_values[1] - closest_values[0]) * percent
 
 
 def read_chemistry(image, chemistry, strip_name=DEFAULT_STRIP_NAME, return_linear=True):

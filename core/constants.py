@@ -22,9 +22,9 @@ AU_STATE_CHOICES = (
 # chemistry name
 class Chemistry(Enum):
     PH = 'PH'
-    CALCIUM_HARDNESS = 'CALCIUM_HARDNESS'
-    FREE_CHLORINE = 'FREE_CHLORINE'
-    TOTAL_CHLORINE = 'TOTAL_CHLORINE'
-    TOTAL_BROMINE = 'TOTAL_BROMINE'
-    TOTAL_ALKAINITY = 'TOTAL_ALKAINITY'
-    CYANURIC_ACID = 'CYANURIC_ACID'
+    CALCIUM_HARDNESS = 'CalciumHardness'
+    FREE_CHLORINE = 'FreeChlorine'
+    TOTAL_CHLORINE = 'TotalChlorine'
+    TOTAL_BROMINE = 'TotalBromine'
+    TOTAL_ALKAINITY = 'TotalAlkainity'
+    CYANURIC_ACID = 'CyanuricAcid'
