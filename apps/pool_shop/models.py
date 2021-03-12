@@ -15,12 +15,10 @@ class Domain(DomainMixin):
 
 
 class Manager(User, TenantMixin):
-    phone_number = models.CharField(_('phone number'), max_length=16, blank=False)
     pool_shop = models.OneToOneField('pool_shop.PoolShop', blank=False, null=False, on_delete=models.CASCADE)
 
 
 class Staff(User, TenantMixin):
-    phone_number = models.CharField(_('phone number'), max_length=16, blank=False)
     pool_shop = models.ForeignKey('pool_shop.PoolShop', blank=False, null=False, on_delete=models.CASCADE)
 
 
