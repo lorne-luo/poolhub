@@ -1,6 +1,6 @@
 pytest
 boto3
-Django==3.1.7
+django==3.0.13
 django-extensions==3.1.1
 djangorestframework==3.12.2
 django-storages==1.11.1
@@ -19,3 +19,4 @@ psycopg2==2.8.6
 Pillow==8.1.0
 colour-science==0.3.16
 numpy==1.20.1
+channels==3.0.3

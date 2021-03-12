@@ -48,6 +48,9 @@ TENANT_APPS = (
     'apps.customer',
     'apps.pool_shop',
     'apps.testing',
+
+    #third party
+    'channels',
 )
 
 INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
@@ -201,6 +204,15 @@ AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME', default='')
 AWS_S3_REGION_NAME = env.str('AWS_S3_REGION_NAME', default="ap-southeast-2")
 AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID', default='')
 AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY', default='')
+
+
+# ASGI
+ASGI_APPLICATION = "config.asgi.application"
+CHANNEL_LAYERS={
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+     }
+}
 
 # PROJECT SETTINGS
 # ------------------------------------------------------------------------------
