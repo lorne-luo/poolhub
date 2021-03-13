@@ -1,49 +1,106 @@
-from core.constants import Chemistry, TARGET_RANGE
+import math
+from apps.testing.calculator.target import get_target
+from core.constants import Chemistry, TARGET_RANGE, POOL_TYPE_POOL
+from core.unit import litre_to_gallon
 
 
-def calculate_ph(current_ph, ta, volume):
+def calculate(PH, TA, CH, CYA, Salt, Borate, Temp, surface, chlorine_source, pool_type=POOL_TYPE_POOL):
+    target = get_target(pool_type, surface, chlorine_source)
+
+
+def calculate_ph(volume, ph_now, ph_target, ta_from=100, borate_from=0):
     """volume in litre"""
-    target=TARGET_RANGE[Chemistry.PH.value]['mean']
-
-    delta = target - current_ph
-    if abs(delta) <= 0.2:
-        return None, None
+    borate_from = borate_from or 0
+    delta = ph_target - ph_now
 
     delta = delta * (volume / 3.78541)
-    temp = (current_ph + target) / 2
-    adj = (192.1626 + -60.1221 * temp + 6.0752 * temp * temp + -0.1943 * temp * temp * temp) * (ta + 13.91) / 114.6
+    temp = (ph_now + ph_target) / 2
+    adj = (192.1626 + -60.1221 * temp + 6.0752 * temp * temp + -0.1943 * temp * temp * temp) * (ta_from + 13.91) / 114.6
     delta = delta * adj
 
-    if current_ph < target:
+    extra = (-5.476259 + 2.414292 * temp + -0.355882 * temp * temp + 0.01755 * temp * temp * temp) * borate_from
+    extra *= delta
+
+    if ph_now < ph_target:
         # too low
-        result = delta / 218.68
-        result = result * 28.3495 + 0.5
+        result = (delta / 218.68) + (extra / 218.68)
+        ph_up = result * 28.3495
+        return math.ceil(ph_up)
     else:
         # too high
-        result = (delta / -240.15)
-        result = result * 0.0283595 + 0.5
-    return result
+        result = (delta + extra) / -240.15
+        muriatic_acid_volume = (delta + extra) / -240.15 * 29.5735  # muriatic acid， ml
+        dry_acid_weight = (delta + extra) / -178.66 * 28.3495  # muriatic acid， g
+        dry_acid_volume = dry_acid_weight * 0.6657
+
+        print('muriatic_acid_volume', muriatic_acid_volume)
+        print('dry_acid_weight', dry_acid_weight)
+        print('dry_acid_volume', dry_acid_volume)
+        return math.ceil(dry_acid_weight)
 
 
-def CSI(PH,TA,CH,CYA,Salt,Borate,Temp):
-{
-	if PH<6or PH>9or isNaN(PH)):
-        return("PH Err")
+def calculate_ta(volume, now, target):
+    now = int(now)
+    target = int(target)
 
-	if document.F.Units.selectedIndexnot =1) Temp=(parseInt(Temp)-32)*5/9
-	else Temp=parseInt(Temp)
+    if target == now:
+        return None
 
-	CarbAlk = TA - 0.38772*CYA/(1+Math.pow(10,6.83-PH)) -
-		4.63*Borate/(1+Math.pow(10,9.11-PH))
-	extra_NaCl = Salt - 1.1678*CH
-	if extra_NaCl<0) extra_NaCl=0
-	Ionic = (1.5*CH+1*TA)/50045 + extra_NaCl/58440
-	CSI = PH-11.677 + Math.log(CH)/Math.LN10 + Math.log(CarbAlk)/Math.LN10 -
-		2.56*Math.sqrt(Ionic)/(1+1.65*Math.sqrt(Ionic)) -
-		1412.5/(Temp+273.15) + 4.7375
-	return(Math.floor(CSI*100+0.5)/100)
-	}
-	}
-	}
-	}
-	}
+    factor = 0.0017583670750820136  # (28.3495 / 3.78541 / 4259.15)
+    if target < now:
+        # todo instruction
+        return 'To lower TA you reduce pH to 7.0-7.2 with acid and then aerate to increase pH.'
+    else:
+        weight = (target - now) * volume * factor  # unit g
+
+        return math.ceil(weight)
+
+
+def calc_fc(volume, now, target):
+    now = int(now)
+    target = int(target)
+
+    if target == now:
+        return None
+
+    bleach_concentration = 0.06 * 100
+    if now < target:
+        temp = (target - now) * litre_to_gallon(volume) / 482.202 * 6 / bleach_concentration
+        return temp * 29.5735
+    else:
+        # todo other instruction to reduce FC
+        pass
+
+
+def calc_ch(volume, now, target):
+    now = int(now)
+    target = int(target)
+
+    if target == now:
+        return None
+
+    if now < target:
+        temp = (target - now) * litre_to_gallon(volume) / 6754.11
+        calcium_chloride_weight = temp * 28.3495  # unit g
+        calcium_chloride_volume = temp * 0.7988 * 29.5735  # unit ml
+
+        print(calcium_chloride_weight)
+        print(calcium_chloride_volume)
+
+        temp = (target - now) * litre_to_gallon(volume) / 5098.82
+
+        calcium_chloride_dihydrate_weight = temp * 28.3495  # unit g
+        calcium_chloride_dihydrate_volume = temp * 1.148 * 29.5735  # unit ml
+
+        print(calcium_chloride_dihydrate_weight)
+        print(calcium_chloride_dihydrate_volume)
+        return math.ceil(calcium_chloride_weight)
+    else:
+        # todo other instruction to reduce FC
+        ch_fill = 0
+        if target < ch_fill:
+            return f'Make sure you can replace with the water CH lower than {target}'
+        else:
+            replace_percent = math.ceil(100 - ((target - ch_fill) / (now - ch_fill)) * 100)
+            # replace_percent = replace_percent / 100
+            return f'Replace {replace_percent}% water with new water, with CH of {replace_percent}'

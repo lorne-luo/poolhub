@@ -90,4 +90,9 @@ def get_target(pool_type, surface, chlorine_source):
         target[Chemistry.CH]['min'] = 50
         target[Chemistry.CH]['max'] = 300
 
+    # calculate idea value for all chemistry
+    for che, values in target.items():
+        if 'ideal' not in values:
+            values['ideal'] = (values['min'] + values['max']) / 2
+
     return target
