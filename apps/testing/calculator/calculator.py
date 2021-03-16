@@ -124,5 +124,20 @@ def calc_cya(volume, now, target):
     else:
         # too high
         refill_percent = 100 - (target / now) * 100
-        print( f'To lower CYA you replace {refill_percent}% of the water with new water.')
+        print(f'To lower CYA you replace {refill_percent}% of the water with new water.')
         return math.ceil(refill_percent)
+
+
+def calc_salt(volume, now, target):
+    if now < target:
+        #too low
+        temp = (target - now) * litre_to_gallon(volume) / 7468.64 * 0.0283495
+        salt_kg = temp
+
+        print(f'Add {salt_kg} kg of salt.')
+        return math.ceil(salt_kg)
+    else:
+        #too high
+        replace_percent =100 - (target / now) * 100
+        print(f'To lower Salt you replace {replace_percent}% of the water with new water.')
+        return math.ceil(replace_percent)
