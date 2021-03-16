@@ -1,5 +1,5 @@
 from apps.testing.calculator import *
-from apps.testing.calculator.calculator import calculate_ta, calculate_ph, calc_ch, calc_cya, calc_salt
+from apps.testing.calculator.calculator import calculate_ta, calculate_ph, calc_ch, calc_cya, calc_salt, calc_borate
 from core.unit import *
 
 
@@ -36,3 +36,8 @@ def test_cya():
 def test_salt():
     assert 41 == calc_salt(10000, 0, 4000)
     assert 25 == calc_salt(10000, 4000, 3000)
+
+
+def test_borate():
+    assert 89 == calc_borate(10000, 1, 2)
+    assert 34 == calc_borate(10000, 3, 2)

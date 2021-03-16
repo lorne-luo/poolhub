@@ -130,14 +130,49 @@ def calc_cya(volume, now, target):
 
 def calc_salt(volume, now, target):
     if now < target:
-        #too low
+        # too low
         temp = (target - now) * litre_to_gallon(volume) / 7468.64 * 0.0283495
         salt_kg = temp
 
         print(f'Add {salt_kg} kg of salt.')
         return math.ceil(salt_kg)
     else:
-        #too high
-        replace_percent =100 - (target / now) * 100
+        # too high
+        replace_percent = 100 - (target / now) * 100
         print(f'To lower Salt you replace {replace_percent}% of the water with new water.')
+        return math.ceil(replace_percent)
+
+
+def calc_borate(volume, now, target):
+    bormuls = [849.271, 1309.52, 1111.69]
+    if now < target:
+        # too low, add borax
+        temp = (target - now) * litre_to_gallon(volume)
+
+        broax_concentration = 849.271
+        borax_g = oz_to_g(temp / broax_concentration)
+        borax_ml = oz_to_ml(temp / broax_concentration * 0.9586)
+        borax_muriatic_acid_ml = oz_to_ml(temp / broax_concentration * 0.4765)
+        print(f'Add {borax_g} g by weight or {borax_ml} ml by volume of Borax')
+        print(f'and {borax_muriatic_acid_ml} ml of 31.45% muriatic acid to compensate for the pH increase.')
+
+        boric_acid_concentration = 1309.52
+        boric_acid_g = oz_to_g(temp / boric_acid_concentration)
+        boric_acid_ml = oz_to_ml(temp / boric_acid_concentration * 1.075)
+        print(f'Add {boric_acid_g} g by weight or {boric_acid_ml} ml by volume of Borax')
+
+        tetraborate_pentahydrate_concentration = 1111.69
+        tetraborate_pentahydrate_g = oz_to_g(temp / tetraborate_pentahydrate_concentration)
+        tetraborate_pentahydrate_ml = oz_to_ml(temp / tetraborate_pentahydrate_concentration * 0.5296)
+        tetraborate_pentahydrate_muriatic_acid_ml = oz_to_ml(temp / tetraborate_pentahydrate_concentration * 0.624)
+        print(f'Add {tetraborate_pentahydrate_g} g by weight or {tetraborate_pentahydrate_ml} ml by volume of Borax')
+        print(
+            f'and {tetraborate_pentahydrate_muriatic_acid_ml} ml of 31.45% muriatic acid to compensate for the pH increase.')
+
+        return math.ceil(borax_g)
+    else:
+        # too high
+        replace_percent = 100 - (target / now) * 100
+        print(f'To lower Borate you replace {replace_percent}% of the water with new water.')
+        print('Note: The pH should be tested and adjusted as needed after increasing the borate level.')
         return math.ceil(replace_percent)
