@@ -1,7 +1,7 @@
 import math
 from apps.testing.calculator.target import get_target
 from core.constants import Chemistry, TARGET_RANGE, POOL_TYPE_POOL
-from core.unit import litre_to_gallon
+from core.unit import litre_to_gallon, oz_to_g, oz_to_ml
 
 
 def calculate(PH, TA, CH, CYA, Salt, Borate, Temp, surface, chlorine_source, pool_type=POOL_TYPE_POOL):
@@ -13,7 +13,7 @@ def calculate_ph(volume, ph_now, ph_target, ta_from=100, borate_from=0):
     borate_from = borate_from or 0
     delta = ph_target - ph_now
 
-    delta = delta * (volume / 3.78541)
+    delta = delta * litre_to_gallon(volume)
     temp = (ph_now + ph_target) / 2
     adj = (192.1626 + -60.1221 * temp + 6.0752 * temp * temp + -0.1943 * temp * temp * temp) * (ta_from + 13.91) / 114.6
     delta = delta * adj
@@ -46,12 +46,12 @@ def calculate_ta(volume, now, target):
     if target == now:
         return None
 
-    factor = 0.0017583670750820136  # (28.3495 / 3.78541 / 4259.15)
+    factor = 28.3495 / 4259.15
     if target < now:
         # todo instruction
         return 'To lower TA you reduce pH to 7.0-7.2 with acid and then aerate to increase pH.'
     else:
-        weight = (target - now) * volume * factor  # unit g
+        weight = (target - now) * litre_to_gallon(volume * factor)  # unit g
 
         return math.ceil(weight)
 
@@ -104,3 +104,25 @@ def calc_ch(volume, now, target):
             replace_percent = math.ceil(100 - ((target - ch_fill) / (now - ch_fill)) * 100)
             # replace_percent = replace_percent / 100
             return f'Replace {replace_percent}% water with new water, with CH of {replace_percent}'
+
+
+def calc_cya(volume, now, target):
+    if now < target:
+        # too low
+        temp = (target - now) * litre_to_gallon(volume) / 7489.51
+
+        stabilizer_weight = oz_to_g(temp)
+        stabilizer_volume = oz_to_ml(temp * 1.042)
+
+        temp = (target - now) * litre_to_gallon(volume) / 2890
+        liquid_stabilizer_volume = oz_to_ml(temp)
+
+        print(
+            f'Add {math.ceil(stabilizer_weight)} g by weight or {math.ceil(stabilizer_volume)} ml by volume of stabilizer')
+        print(f'or add {math.ceil(liquid_stabilizer_volume)} ml of liquid stabilizer.')
+        return math.ceil(stabilizer_weight)
+    else:
+        # too high
+        refill_percent = 100 - (target / now) * 100
+        print( f'To lower CYA you replace {refill_percent}% of the water with new water.')
+        return math.ceil(refill_percent)
