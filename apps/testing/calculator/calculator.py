@@ -28,20 +28,52 @@ def calculate_ph(volume, ph_now, ph_target, ta_now=100, borate_now=0):
     if ph_now < ph_target:
         # too low
         result = (delta / 218.68) + (extra / 218.68)
-        ph_up = result * 28.3495
-        return math.ceil(ph_up)
+        soda_ash_weight = result * 28.3495
+
+        return ChemistrySolution(
+            chemistry=Chemistry.PH.value,
+            options=[
+                [
+                    # add pH Up (also known as Soda Ash or Sodium Carbinate) in grams
+                    # Always in granula form.
+                    # People rearly refer the product as Soda Ash or Sodium Carbinate.
+                    # Always contain 100% Sodium Carbinate.
+                    Product(PRODUCT_TYPE.SODA_ASH, math.ceil(soda_ash_weight), Unit.GRAM)
+                ],
+            ]
+        )
     else:
         # too high
-        result = (delta + extra) / -240.15
-        muriatic_acid_concentration = 1  # 31.45% - 20° Baumé
-        muriatic_acid_volume = (delta + extra) / -240.15 * muriatic_acid_concentration * 29.5735  # muriatic acid， ml
-        dry_acid_weight = (delta + extra) / -178.66 * 28.3495  # muriatic acid， g
+        temp = (delta + extra) / -240.15
+        muriatic_acid_concentration = 1  # 31.45% - 20° Baume
+        hydrochloric_acid_concentration = 31.45 / 32.5
+
+        # muriatic acid, ml
+        muriatic_acid_volume = temp * muriatic_acid_concentration * 29.5735
+
+        # hydrochloric acid, ml
+        hydrochloric_acid_volume = temp * hydrochloric_acid_concentration * 29.5735
+
+        # muriatic acid, g
+        dry_acid_weight = (delta + extra) / -178.66 * 28.3495
         dry_acid_volume = dry_acid_weight * 0.6657
 
-        print('muriatic_acid_volume', muriatic_acid_volume)
-        print('dry_acid_weight', dry_acid_weight)
-        print('dry_acid_volume', dry_acid_volume)
-        return math.ceil(dry_acid_weight)
+        # print('muriatic_acid_volume', muriatic_acid_volume)
+        # print('dry_acid_weight', dry_acid_weight)
+        # print('dry_acid_volume', dry_acid_volume)
+
+        return ChemistrySolution(
+            chemistry=Chemistry.PH.value,
+            options=[
+                [
+                    # always add 32.5% Pool Acid in ml or litre.
+                    # In Australia, everyone refer to the acid as pool acid.
+                    # Always contains 32.5% Hydrochloric Acid
+                    # Always in liquid form.
+                    Product(PRODUCT_TYPE.POOL_ACID, math.ceil(hydrochloric_acid_volume), Unit.ML)
+                ],
+            ]
+        )
 
 
 def calculate_ta(volume, now, target):

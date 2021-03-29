@@ -111,8 +111,9 @@ class PRODUCT_TYPE:
     TRICHLOR = 'TRICHLOR'
     DICHLOR = 'DICHLOR'
     CAL_HYPO_70P = 'CAL_HYPO_70%'
-    #
-    PH_UP = 'PH_UP'
+    # PH
+    SODA_ASH = 'SODA_ASH'
+    POOL_ACID='POOL_ACID'
 
 
 class ActionType:

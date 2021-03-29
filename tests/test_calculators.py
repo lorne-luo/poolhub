@@ -1,20 +1,23 @@
 from apps.testing.calculator import *
 from apps.testing.calculator.calculator import calculate_ta, calculate_ph, calc_ch, calc_cya, calc_salt, calc_borate, \
     calc_fc
+from core.constants import PRODUCT_TYPE
 from core.unit import *
 
 
 def test_ph_too_low():
-    value = calculate_ph(10000, 7.0, 7.5, 100, 0)
-    assert value == 266
+    solution = calculate_ph(10000, 7.0, 7.5, 100, 0)
+    assert len(solution.options) == 1
+    assert solution.options[0][0].value == 266
+    assert solution.options[0][0].type == PRODUCT_TYPE.SODA_ASH
 
-    value = calculate_ph(10000, 6.9, 7.4, 100, 0)
-    assert value == 315
 
 
 def test_ph_too_high():
-    value = calculate_ph(10000, 7.9, 7.5, 100, 0)
-    assert value == 120
+    solution = calculate_ph(10000, 7.9, 7.5, 100, 0)
+    assert len(solution.options) == 1
+    assert solution.options[0][0].value == 90
+    assert solution.options[0][0].type == PRODUCT_TYPE.POOL_ACID
 
 
 def test_ta():
