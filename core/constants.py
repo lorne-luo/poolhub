@@ -114,7 +114,8 @@ class PRODUCT_TYPE:
     # PH
     SODA_ASH = 'SODA_ASH'
     POOL_ACID='POOL_ACID'
-
+    # TA
+    PH_BUFFER='PH_BUFFER'
 
 class ActionType:
     REPLACE_WATER = 'REPLACE_WATER'

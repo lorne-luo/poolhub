@@ -85,12 +85,38 @@ def calc_ta(volume, now, target):
 
     factor = 28.3495 / 4259.15
     if target < now:
-        # todo instruction
-        return 'To lower TA you reduce pH to 7.0-7.2 with acid and then aerate to increase pH.'
+        # too high
+        # todo combine with ph calculation
+        return ChemistrySolution(
+            chemistry=Chemistry.TA.value,
+            options=[
+                [
+                    # Not many people use and know the product
+                    Action(type=ActionType.CONSAULT_POOLSHOP,
+                           remark='To lower TA you reduce pH to 7.0-7.2 with acid and then aerate to increase pH.')
+                ],
+            ]
+        )
     else:
-        dichlor_weight = (target - now) * litre_to_gallon(volume * factor)  # unit g
+        # too low
+        # add pH Buffer (also known Alkilinity Enhancer, Baking Soda or Sodium BiCarbinate) in grams
+        # Always in granular form
+        # Always contains 100% SOdium BiCarbinate
+        baking_soda_weight = (target - now) * litre_to_gallon(volume * factor)  # unit g
+        # print(baking_soda_weight)
 
-        return math.ceil(dichlor_weight)
+        return ChemistrySolution(
+            chemistry=Chemistry.TA.value,
+            options=[
+                [
+                    # add pH Up (also known as Soda Ash or Sodium Carbinate) in grams
+                    # Always in granula form.
+                    # People rearly refer the product as Soda Ash or Sodium Carbinate.
+                    # Always contain 100% Sodium Carbinate.
+                    Product(PRODUCT_TYPE.PH_BUFFER, math.ceil(baking_soda_weight), Unit.GRAM)
+                ],
+            ]
+        )
 
 
 def calc_fc(volume, now, target):
