@@ -80,9 +80,22 @@ def test_cya_too_high():
     assert solution.options[0][0].value == 20
 
 
-def test_salt():
-    assert 41 == calc_salt(10000, 0, 4000)
-    assert 25 == calc_salt(10000, 4000, 3000)
+def test_salt_too_low():
+    solution = calc_salt(10000, 0, 4000)
+    assert solution.chemistry == Chemistry.SALT.value
+    assert len(solution.options) == 1
+    assert solution.options[0][0].value == 41
+    assert solution.options[0][0].unit == Unit.KG
+    assert solution.options[0][0].type == PRODUCT_TYPE.SALT
+
+
+def test_salt_too_high():
+    solution = calc_salt(10000, 4000, 3000)
+    assert solution.chemistry == Chemistry.SALT.value
+    assert len(solution.options) == 1
+    assert isinstance(solution.options[0][0], Action)
+    assert solution.options[0][0].type == ActionType.REPLACE_WATER
+    assert solution.options[0][0].value == 25
 
 
 def test_borate():

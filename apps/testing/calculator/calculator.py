@@ -254,8 +254,8 @@ def calc_cya(volume, now, target):
 
         stabilizer_weight = oz_to_g(temp)
         stabilizer_volume = oz_to_ml(temp * 1.042)
-        stabilizer_weight=math.ceil(stabilizer_weight)
-        stabilizer_volume=math.ceil(stabilizer_volume)
+        stabilizer_weight = math.ceil(stabilizer_weight)
+        stabilizer_volume = math.ceil(stabilizer_volume)
 
         temp = (target - now) * litre_to_gallon(volume) / 2890
         liquid_stabilizer_volume = oz_to_ml(temp)
@@ -299,16 +299,37 @@ def calc_cya(volume, now, target):
 def calc_salt(volume, now, target):
     if now < target:
         # too low
-        temp = (target - now) * litre_to_gallon(volume) / 7468.64 * 0.0283495
-        salt_kg = temp
+        salt_kg = (target - now) * litre_to_gallon(volume) / 7468.64 * 0.0283495
+        salt_kg = math.ceil(salt_kg)
 
         print(f'Add {salt_kg} kg of salt.')
-        return math.ceil(salt_kg)
+        return ChemistrySolution(
+            chemistry=Chemistry.SALT.value,
+            options=[
+                [
+                    # add salt always in KG,.
+                    # Always in granular form
+                    # Salt is 100% salt.
+                    Product(PRODUCT_TYPE.SALT, salt_kg, Unit.KG),
+                ]
+
+            ]
+        )
     else:
         # too high
         replace_percent = 100 - (target / now) * 100
         print(f'To lower Salt you replace {replace_percent}% of the water with new water.')
-        return math.ceil(replace_percent)
+        return ChemistrySolution(
+            chemistry=Chemistry.SALT.value,
+            options=[
+                [
+                    # dump and refill water.
+                    Action(type=ActionType.REPLACE_WATER,
+                           value=math.ceil(replace_percent),
+                           remark=f'To lower Salt you replace {replace_percent}% of the water with new water.')
+                ],
+            ]
+        )
 
 
 def calc_borate(volume, now, target):
