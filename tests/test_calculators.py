@@ -1,6 +1,7 @@
 from apps.testing.calculator import *
 from apps.testing.calculator.calculator import calculate_ta, calculate_ph, calc_ch, calc_cya, calc_salt, calc_borate, \
     calc_fc
+from apps.testing.dataclasses import Action
 from core.constants import PRODUCT_TYPE
 from core.unit import *
 
@@ -10,7 +11,6 @@ def test_ph_too_low():
     assert len(solution.options) == 1
     assert solution.options[0][0].value == 266
     assert solution.options[0][0].type == PRODUCT_TYPE.SODA_ASH
-
 
 
 def test_ph_too_high():
@@ -47,9 +47,12 @@ def test_borate():
     assert 34 == calc_borate(10000, 3, 2)
 
 
-def test_fc():
+def test_fc_too_low():
     solution = calc_fc(10000, 3, 4)
     assert len(solution.options) == 4
 
+
+def test_fc_too_high():
     solution = calc_fc(10000, 4, 3)
     assert len(solution.options) == 1
+    assert isinstance(solution.options[0][0], Action)
