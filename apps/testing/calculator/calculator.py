@@ -254,6 +254,8 @@ def calc_cya(volume, now, target):
 
         stabilizer_weight = oz_to_g(temp)
         stabilizer_volume = oz_to_ml(temp * 1.042)
+        stabilizer_weight=math.ceil(stabilizer_weight)
+        stabilizer_volume=math.ceil(stabilizer_volume)
 
         temp = (target - now) * litre_to_gallon(volume) / 2890
         liquid_stabilizer_volume = oz_to_ml(temp)
@@ -261,12 +263,37 @@ def calc_cya(volume, now, target):
         print(
             f'Add {math.ceil(stabilizer_weight)} g by weight or {math.ceil(stabilizer_volume)} ml by volume of stabilizer')
         print(f'or add {math.ceil(liquid_stabilizer_volume)} ml of liquid stabilizer.')
-        return math.ceil(stabilizer_weight)
+
+        return ChemistrySolution(
+            chemistry=Chemistry.CYA.value,
+            options=[
+                [
+                    # add Stabiliser (also known as Sunscreen CYA or Cyanuric Acid) in grams
+                    # Almost always in granular form
+                    # People hardly known the product as CYA or Cyanuric Acid, more popular known as Stabiliser
+                    Product(PRODUCT_TYPE.STABILISER, stabilizer_weight, Unit.GRAM),
+                ],
+                [
+                    # Liquid form product is expensive and hard to find.
+                    Product(PRODUCT_TYPE.STABILISER, stabilizer_volume, Unit.ML)
+                ]
+            ]
+        )
     else:
         # too high
         refill_percent = 100 - (target / now) * 100
-        print(f'To lower CYA you replace {refill_percent}% of the water with new water.')
-        return math.ceil(refill_percent)
+        # print(f'To lower CYA you replace {refill_percent}% of the water with new water.')
+        return ChemistrySolution(
+            chemistry=Chemistry.CYA.value,
+            options=[
+                [
+                    # dump and refill water.
+                    Action(type=ActionType.REPLACE_WATER,
+                           value=math.ceil(refill_percent),
+                           remark=f'To lower CYA you replace {refill_percent}% of the water with new water.')
+                ],
+            ]
+        )
 
 
 def calc_salt(volume, now, target):
