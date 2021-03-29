@@ -132,6 +132,7 @@ def calc_fc(volume, now, target):
     cal_hypo_70_factor = 5199.52
 
     if now < target:
+        # too low
         cal_hypo_70_weight = (target - now) * litre_to_gallon(volume) / cal_hypo_70_factor
         cal_hypo_70_weight = math.ceil(oz_to_g(cal_hypo_70_weight))
 
@@ -174,8 +175,7 @@ def calc_fc(volume, now, target):
         )
 
     else:
-        # If too much, add chlorine remover.
-        # Not many people use and know the product.
+        # too high, add chlorine remover.
         return ChemistrySolution(
             chemistry=Chemistry.FC.value,
             options=[
@@ -183,7 +183,8 @@ def calc_fc(volume, now, target):
                     # Not many people use and know the product
                     Action(type=ActionType.CONSAULT_POOLSHOP)
                 ],
-            ])
+            ]
+        )
 
 
 def calc_ch(volume, now, target):
@@ -194,10 +195,12 @@ def calc_ch(volume, now, target):
         return None
 
     if now < target:
+        # too low
         temp = (target - now) * litre_to_gallon(volume) / 6754.11
         calcium_chloride_weight = temp * 28.3495  # unit g
         calcium_chloride_volume = temp * 0.7988 * 29.5735  # unit ml
-
+        calcium_chloride_weight = math.ceil(calcium_chloride_weight)
+        calcium_chloride_volume = math.ceil(calcium_chloride_volume)
         print(calcium_chloride_weight)
         print(calcium_chloride_volume)
 
@@ -208,16 +211,40 @@ def calc_ch(volume, now, target):
 
         print(calcium_chloride_dihydrate_weight)
         print(calcium_chloride_dihydrate_volume)
-        return math.ceil(calcium_chloride_weight)
+
+        return ChemistrySolution(
+            chemistry=Chemistry.CH.value,
+            options=[
+                [
+                    # add Hardness Enhancer (namely Calcium Enhancer and Calcium Chloride) in grans
+                    # Always in granular form, always contains 100% Calcium Chloride
+                    Product(PRODUCT_TYPE.CALCIUM_CHLORIDE, calcium_chloride_weight, Unit.GRAM),
+                ],
+                [
+                    Product(PRODUCT_TYPE.CALCIUM_CHLORIDE, calcium_chloride_volume, Unit.ML)
+                ]
+            ]
+        )
     else:
-        # todo other instruction to reduce FC
+        # too high
         ch_fill = 0
         if target < ch_fill:
             return f'Make sure you can replace with the water CH lower than {target}'
         else:
             replace_percent = math.ceil(100 - ((target - ch_fill) / (now - ch_fill)) * 100)
+
             # replace_percent = replace_percent / 100
-            return f'Replace {replace_percent}% water with new water, with CH of {replace_percent}'
+            return ChemistrySolution(
+                chemistry=Chemistry.CH.value,
+                options=[
+                    [
+                        # dump and refill water.
+                        Action(type=ActionType.REPLACE_WATER,
+                               value=replace_percent,
+                               remark=f'Replace {replace_percent}% of the water with new water, with CH of {ch_fill}')
+                    ],
+                ]
+            )
 
 
 def calc_cya(volume, now, target):

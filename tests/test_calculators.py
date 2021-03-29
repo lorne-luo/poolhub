@@ -8,7 +8,7 @@ from core.unit import *
 
 def test_ph_too_low():
     solution = calc_ph(10000, 7.0, 7.5, 100, 0)
-    assert solution.chemistry==Chemistry.PH.value
+    assert solution.chemistry == Chemistry.PH.value
     assert len(solution.options) == 1
     assert solution.options[0][0].value == 266
     assert solution.options[0][0].type == PRODUCT_TYPE.SODA_ASH
@@ -16,7 +16,7 @@ def test_ph_too_low():
 
 def test_ph_too_high():
     solution = calc_ph(10000, 7.9, 7.5, 100, 0)
-    assert solution.chemistry==Chemistry.PH.value
+    assert solution.chemistry == Chemistry.PH.value
     assert len(solution.options) == 1
     assert solution.options[0][0].value == 90
     assert solution.options[0][0].type == PRODUCT_TYPE.POOL_ACID
@@ -24,23 +24,37 @@ def test_ph_too_high():
 
 def test_ta_too_low():
     solution = calc_ta(10000, 100, 110)
-    assert solution.chemistry==Chemistry.TA.value
+    assert solution.chemistry == Chemistry.TA.value
     assert len(solution.options) == 1
     assert solution.options[0][0].value == 176
     assert solution.options[0][0].type == PRODUCT_TYPE.PH_BUFFER
 
+
 def test_ta_too_high():
     solution = calc_ta(10000, 100, 90)
-    assert solution.chemistry==Chemistry.TA.value
+    assert solution.chemistry == Chemistry.TA.value
     assert len(solution.options) == 1
     assert isinstance(solution.options[0][0], Action)
-    assert solution.options[0][0].type, ActionType.CONSAULT_POOLSHOP
+    assert solution.options[0][0].type == ActionType.CONSAULT_POOLSHOP
 
-def test_ch():
-    assert 111 == calc_ch(10000, 250, 260)
 
-    ch = calc_ch(10000, 260, 250)
-    assert '4%' in ch
+def test_ch_too_low():
+    solution = calc_ch(10000, 250, 260)
+
+    assert solution.chemistry == Chemistry.CH.value
+    assert len(solution.options) == 2
+    assert solution.options[0][0].value == 111
+    assert solution.options[0][0].type == PRODUCT_TYPE.CALCIUM_CHLORIDE
+
+
+def test_ch_too_high():
+    solution = calc_ch(10000, 260, 250)
+    assert solution.chemistry == Chemistry.CH.value
+
+    assert isinstance(solution.options[0][0], Action)
+    assert solution.options[0][0].type == ActionType.REPLACE_WATER
+    assert solution.options[0][0].value == 4
+    # assert '4%' in ch
 
 
 def test_cya():
@@ -60,13 +74,13 @@ def test_borate():
 
 def test_fc_too_low():
     solution = calc_fc(10000, 3, 4)
-    assert solution.chemistry==Chemistry.FC.value
+    assert solution.chemistry == Chemistry.FC.value
     assert len(solution.options) == 4
 
 
 def test_fc_too_high():
     solution = calc_fc(10000, 4, 3)
-    assert solution.chemistry==Chemistry.FC.value
+    assert solution.chemistry == Chemistry.FC.value
     assert len(solution.options) == 1
     assert isinstance(solution.options[0][0], Action)
     assert solution.options[0][0].type, ActionType.CONSAULT_POOLSHOP
