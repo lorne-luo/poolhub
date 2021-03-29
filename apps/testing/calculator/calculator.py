@@ -9,10 +9,10 @@ from core.unit import litre_to_gallon, oz_to_g, oz_to_ml
 def calculate(volume, ph, ta, ch, cya, salt, borate, temp, surface, chlorine_source, pool_type=POOL_TYPE_POOL):
     target = get_target(pool_type, surface, chlorine_source)
 
-    ph_solution = calculate_ph(volume, ph, target[Chemistry.PH]['ideal'], ta_now=100, borate_now=borate)
+    ph_solution = calc_ph(volume, ph, target[Chemistry.PH]['ideal'], ta_now=100, borate_now=borate)
 
 
-def calculate_ph(volume, ph_now, ph_target, ta_now=100, borate_now=0):
+def calc_ph(volume, ph_now, ph_target, ta_now=100, borate_now=0):
     """volume in litre"""
     borate_now = borate_now or 0
     delta = ph_target - ph_now
@@ -76,7 +76,7 @@ def calculate_ph(volume, ph_now, ph_target, ta_now=100, borate_now=0):
         )
 
 
-def calculate_ta(volume, now, target):
+def calc_ta(volume, now, target):
     now = int(now)
     target = int(target)
 
