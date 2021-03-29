@@ -1,24 +1,28 @@
 import math
 from apps.testing.calculator.target import get_target
-from core.constants import Chemistry, TARGET_RANGE, POOL_TYPE_POOL
+from apps.testing.dataclasses import ChemistrySolution, Product, Action
+from core.constants import Chemistry, TARGET_RANGE, POOL_TYPE_POOL, PRODUCT_TYPE, ActionType
+from core.unit import Unit
 from core.unit import litre_to_gallon, oz_to_g, oz_to_ml
 
 
-def calculate(PH, TA, CH, CYA, Salt, Borate, Temp, surface, chlorine_source, pool_type=POOL_TYPE_POOL):
+def calculate(volume, ph, ta, ch, cya, salt, borate, temp, surface, chlorine_source, pool_type=POOL_TYPE_POOL):
     target = get_target(pool_type, surface, chlorine_source)
 
+    ph_solution = calculate_ph(volume, ph, target[Chemistry.PH]['ideal'], ta_now=100, borate_now=borate)
 
-def calculate_ph(volume, ph_now, ph_target, ta_from=100, borate_from=0):
+
+def calculate_ph(volume, ph_now, ph_target, ta_now=100, borate_now=0):
     """volume in litre"""
-    borate_from = borate_from or 0
+    borate_now = borate_now or 0
     delta = ph_target - ph_now
 
     delta = delta * litre_to_gallon(volume)
     temp = (ph_now + ph_target) / 2
-    adj = (192.1626 + -60.1221 * temp + 6.0752 * temp * temp + -0.1943 * temp * temp * temp) * (ta_from + 13.91) / 114.6
+    adj = (192.1626 + -60.1221 * temp + 6.0752 * temp * temp + -0.1943 * temp * temp * temp) * (ta_now + 13.91) / 114.6
     delta = delta * adj
 
-    extra = (-5.476259 + 2.414292 * temp + -0.355882 * temp * temp + 0.01755 * temp * temp * temp) * borate_from
+    extra = (-5.476259 + 2.414292 * temp + -0.355882 * temp * temp + 0.01755 * temp * temp * temp) * borate_now
     extra *= delta
 
     if ph_now < ph_target:
@@ -29,7 +33,8 @@ def calculate_ph(volume, ph_now, ph_target, ta_from=100, borate_from=0):
     else:
         # too high
         result = (delta + extra) / -240.15
-        muriatic_acid_volume = (delta + extra) / -240.15 * 29.5735  # muriatic acid， ml
+        muriatic_acid_concentration = 1  # 31.45% - 20° Baumé
+        muriatic_acid_volume = (delta + extra) / -240.15 * muriatic_acid_concentration * 29.5735  # muriatic acid， ml
         dry_acid_weight = (delta + extra) / -178.66 * 28.3495  # muriatic acid， g
         dry_acid_volume = dry_acid_weight * 0.6657
 
@@ -51,9 +56,9 @@ def calculate_ta(volume, now, target):
         # todo instruction
         return 'To lower TA you reduce pH to 7.0-7.2 with acid and then aerate to increase pH.'
     else:
-        weight = (target - now) * litre_to_gallon(volume * factor)  # unit g
+        dichlor_weight = (target - now) * litre_to_gallon(volume * factor)  # unit g
 
-        return math.ceil(weight)
+        return math.ceil(dichlor_weight)
 
 
 def calc_fc(volume, now, target):
@@ -63,13 +68,64 @@ def calc_fc(volume, now, target):
     if target == now:
         return None
 
-    bleach_concentration = 0.06 * 100
+    liquid_chlorine_concentration = 12.5  # %, australia normally use 12.5% liquid chlorine
+    trichlor_factor = 6854.95
+    dichlor_factor = 4149.03
+    cal_hypo_70_factor = 5199.52
+
     if now < target:
-        temp = (target - now) * litre_to_gallon(volume) / 482.202 * 6 / bleach_concentration
-        return temp * 29.5735
+        cal_hypo_70_weight = (target - now) * litre_to_gallon(volume) / cal_hypo_70_factor
+        cal_hypo_70_weight = math.ceil(oz_to_g(cal_hypo_70_weight))
+
+        liquid_chlorine_ml = (target - now) * litre_to_gallon(volume) / 482.202 * 6 / liquid_chlorine_concentration
+        liquid_chlorine_ml = math.ceil(oz_to_ml(liquid_chlorine_ml))
+
+        trichlor_weight = (target - now) * litre_to_gallon(volume) / trichlor_factor
+        print(math.ceil(oz_to_ml(trichlor_weight)))
+        dichlor_weight = (target - now) * litre_to_gallon(volume) / dichlor_factor
+        print(math.ceil(oz_to_ml(dichlor_weight)))
+
+        # todo If not enough and a chlorinator pool, crank up chlorine production.
+        return ChemistrySolution(
+            chemistry=Chemistry.FC.value,
+            options=[
+                [
+                    # option 1:  Liquid Chlorine in ml
+                    # Always cotnains 12.5% Sodium Chloride
+                    # todo Always in litres
+                    # Almost no one calls it bleach in Australia.
+                    Product(PRODUCT_TYPE.LIQUID_CHLORINE, liquid_chlorine_ml, Unit.ML)
+                ],
+                [
+                    # option 2: 70% Cal-Hypo in grams
+                    # Always in granular form.
+                    # Always contain 70% or close Calcium Hypochloride
+                    Product(PRODUCT_TYPE.CAL_HYPO_70P, cal_hypo_70_weight, Unit.GRAM)
+                ],
+                [
+                    # option 3: Trichlor in grams
+                    # Aways in granular form in Australia
+                    Product(PRODUCT_TYPE.TRICHLOR, trichlor_weight, Unit.GRAM)
+                ],
+                [
+                    # option 4: Dichlor in grams
+                    # Aways in granular form in Australia
+                    Product(PRODUCT_TYPE.DICHLOR, dichlor_weight, Unit.GRAM)
+                ]
+            ]
+        )
+
     else:
-        # todo other instruction to reduce FC
-        pass
+        # If too much, add chlorine remover.
+        # Not many people use and know the product.
+        return ChemistrySolution(
+            chemistry=Chemistry.FC.value,
+            options=[
+                [
+                    # Not many people use and know the product
+                    Action(type=ActionType.CONSAULT_POOLSHOP)
+                ],
+            ])
 
 
 def calc_ch(volume, now, target):

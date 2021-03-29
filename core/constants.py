@@ -48,6 +48,7 @@ POOL_TYPE_CHOICES = (
     (POOL_TYPE_SPA, POOL_TYPE_SPA),
 )
 
+
 # CHEMISTRY NAME
 class Chemistry(Enum):
     PH = 'PH'
@@ -102,3 +103,18 @@ TARGET_RANGE = {
         'max': 4500,
     }
 }
+
+
+class PRODUCT_TYPE:
+    # FC
+    LIQUID_CHLORINE = 'LIQUID_CHLORINE'
+    TRICHLOR = 'TRICHLOR'
+    DICHLOR = 'DICHLOR'
+    CAL_HYPO_70P = 'CAL_HYPO_70%'
+    #
+    PH_UP = 'PH_UP'
+
+
+class ActionType:
+    REPLACE_WATER = 'REPLACE_WATER'
+    CONSAULT_POOLSHOP = 'CONSAULT_POOLSHOP'
