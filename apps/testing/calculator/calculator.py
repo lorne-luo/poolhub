@@ -333,6 +333,7 @@ def calc_salt(volume, now, target):
 
 
 def calc_borate(volume, now, target):
+    """todo no solution output yet as Ausralia not apply this"""
     bormuls = [849.271, 1309.52, 1111.69]
     if now < target:
         # too low, add borax

@@ -98,11 +98,6 @@ def test_salt_too_high():
     assert solution.options[0][0].value == 25
 
 
-def test_borate():
-    assert 89 == calc_borate(10000, 1, 2)
-    assert 34 == calc_borate(10000, 3, 2)
-
-
 def test_fc_too_low():
     solution = calc_fc(10000, 3, 4)
     assert solution.chemistry == Chemistry.FC.value
@@ -115,3 +110,11 @@ def test_fc_too_high():
     assert len(solution.options) == 1
     assert isinstance(solution.options[0][0], Action)
     assert solution.options[0][0].type, ActionType.CONSAULT_POOLSHOP
+
+
+def test_borate_too_flow():
+    assert 89 == calc_borate(10000, 1, 2)
+
+
+def test_borate_too_high():
+    assert 34 == calc_borate(10000, 3, 2)
