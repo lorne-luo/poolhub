@@ -1,0 +1,1465 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd">
+<!-- saved from url=(0040)http://www.troublefreepool.com/calc.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="description" content="PoolMath helps you keep calculate your pool&#39;s chemical needs.">
+<meta name="Author" content="Jason T. Linhart">
+<meta name="Copyright" content="Copyright (c) 2007-2010 by Jason T. Linhart and 2013 by TroubleFreePool.com">
+
+<title>PoolMath</title>
+<style type="text/css" media="all">
+body {
+	background:#cce3f3 url(/images/global/bg.gif) repeat-x;
+	}
+td {
+	font-size: 16px;
+	}
+h1 {
+	text-align: center;
+	color:#FFFFFF;
+	}
+input {
+	font-family:courier,courier new,monospace;
+	font-size: 13px;
+	}
+.sans {
+	font-family:sans-serif;
+	}
+.ClassNORM {
+	background-color:#FFFFFF;
+	}
+.ClassHEAD {
+	background-color:#996633;
+	color:#FFFFFF;
+	}
+.ClassSIZE {
+	background-color:#FFCC00;
+	}
+.ClassFC {
+	background-color:#FFFF88;
+	}
+.ClassPH {
+	background-color:#FFBBBB;
+	}
+.ClassTA {
+	background-color:#CCFF99;
+	}
+.ClassCH {
+	background-color:#33DDFF;
+	}
+.ClassCYA {
+	background-color:#FFFF88;
+	}
+.ClassSALT {
+	background-color:#EEEEEE;
+	}
+.ClassBOR {
+	background-color:#FFBBBB;
+	}
+.ClassTEMP {
+	background-color:#FFCC00;
+	}
+.ClassCSI {
+	background-color:#CCFF99;
+	}
+.ClassSUG {
+	background-color:#33DDFF;
+	}
+.ClassGOALS {
+	background-color:#FFFF88;
+	}
+</style>
+<script language="JavaScript" type="text/javascript"><!--
+
+var old_unit = 0;
+
+function createCookie(name,value,days)
+{
+	if (days) {
+		var date = new Date();
+		date.setTime(date.getTime()+(days*24*60*60*1000));
+		var expires = "; expires="+date.toGMTString();
+		}
+	else var expires = "";
+	document.cookie = name+"="+value+expires+"; path=/";
+	}
+
+function readCookie(name)
+{
+	var nameEQ = name + "=";
+	var ca = document.cookie.split(';');
+	for(var i=0;i < ca.length;i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1,c.length);
+		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+		}
+	return null;
+	}
+
+function eraseCookie(name)
+{
+	createCookie(name,"",-1);
+	}
+
+function SaveSettings()					// ABCDEFGHJKLMNOPQRSTUVWXYZ - I
+{
+	createCookie("settings",
+		"U"+document.F.Units.selectedIndex+
+		"G"+parseInt(document.F.SIZE.value)+
+		"Q"+parseFloat(document.F.FCpcnt.value)+
+		"J"+document.F.FCjug.selectedIndex+
+		"Z"+document.F.FCpop.selectedIndex+
+		"V"+document.F.SZpop.selectedIndex+
+		"E"+document.F.EFFpop.selectedIndex+
+		"C"+parseFloat(document.F.FCto.value)+
+		"P"+parseFloat(document.F.PHto.value)+
+		"M"+document.F.MApop.selectedIndex+
+		"A"+parseInt(document.F.TAto.value)+
+		"H"+parseInt(document.F.CHto.value)+
+		"F"+parseInt(document.F.CHfill.value)+
+		"Y"+parseInt(document.F.CYAto.value)+
+		"S"+parseInt(document.F.SALTto.value)+
+		"B"+parseInt(document.F.BORto.value)+
+		"X"+document.F.BORpop.selectedIndex+
+		"T"+parseInt(document.F.TEMP.value)+
+		"W"+parseFloat(document.F.SZwid.value)+
+		"L"+parseFloat(document.F.SZlen.value)+
+		"D"+parseFloat(document.F.SZdeep.value)+
+		"O"+parseFloat(document.F.EFFoz.value)+
+		"N"+document.F.FROMpop.selectedIndex+
+		"K"+document.F.CHLORINEpop.selectedIndex+
+		"R"+document.F.SURFACEpop.selectedIndex,
+		365);
+	}
+
+function RestoreSettings()
+{
+	var cookie, value, indx, len, tlen;
+
+	cookie=readCookie("settings");
+	if (cookie) len=cookie.length;
+	else len=0;
+	for (indx=0; indx+2<=len; indx=tlen) {
+		for (tlen=indx+1; tlen<len && (cookie.charAt(tlen)=="." ||
+			(cookie.charAt(tlen)>="0" && cookie.charAt(tlen)<="9")); ++tlen) ;
+		if (tlen<=indx+1) break;
+		value=parseFloat(cookie.substring(indx+1,tlen));
+		switch (cookie.charAt(indx)) {
+
+		case "U":
+			document.F.Units.selectedIndex=old_unit=value;
+			if (value>0) CalcUnits();
+			break;
+		case "G":
+			document.F.SIZE.value=value;
+			break;
+		case "Q":
+			document.F.FCpcnt.value=value;
+			break;
+		case "J":
+			document.F.FCjug.selectedIndex=value;
+			break;
+		case "Z":
+			document.F.FCpop.selectedIndex=value;
+			break;
+		case "V":
+			document.F.SZpop.selectedIndex=value;
+			break;
+		case "E":
+			document.F.EFFpop.selectedIndex=value;
+			break;
+		case "C":
+			document.F.FCfrom.value=document.F.FCto.value=value;
+			break;
+		case "F":
+			document.F.CHfill.value=value;
+			break;
+		case "P":
+			document.F.PHfrom.value=document.F.PHto.value=value;
+			break;
+		case "M":
+			document.F.MApop.selectedIndex=value;
+			break;
+		case "A":
+			document.F.TAfrom.value=document.F.TAto.value=value;
+			break;
+		case "H":
+			document.F.CHfrom.value=document.F.CHto.value=value;
+			break;
+		case "Y":
+			document.F.CYAfrom.value=document.F.CYAto.value=value;
+			break;
+		case "S":
+			document.F.SALTfrom.value=document.F.SALTto.value=value;
+			break;
+		case "B":
+			document.F.BORfrom.value=document.F.BORto.value=value;
+			break;
+		case "X":
+			document.F.BORpop.selectedIndex=value;
+			break;
+		case "T":
+			document.F.TEMP.value=value;
+			break;
+		case "W":
+			document.F.SZwid.value=value;
+			break;
+		case "L":
+			document.F.SZlen.value=value;
+			break;
+		case "D":
+			document.F.SZdeep.value=value;
+			break;
+		case "O":
+			document.F.EFFoz.value=value;
+			break;
+		case "N":
+			document.F.FROMpop.selectedIndex=value;
+			break;
+		case "K":
+			document.F.CHLORINEpop.selectedIndex=value;
+			break;
+		case "R":
+			document.F.SURFACEpop.selectedIndex=value;
+			break;
+			}
+		}
+	CalcAll();
+	}
+
+function GetGallons()
+{
+	if (document.F.Units.selectedIndex==1)
+		return(parseInt(document.F.SIZE.value)/3.78541);
+	if (document.F.Units.selectedIndex==2)
+		return(parseInt(document.F.SIZE.value)*1.20095);
+	return(parseInt(document.F.SIZE.value));
+	}
+
+function PutWeight(oz)
+{
+	if (document.F.Units.selectedIndex==1)
+		return(Math.floor(oz*28.3495 + 0.5)+" g");
+	if (oz<10) return(Math.floor(oz+0.05)+"."+Math.floor(oz*10+0.5)%10+" oz");
+	return(Math.floor(oz+0.5)+" oz");
+	}
+
+function PutLbs(oz)
+{
+	if (document.F.Units.selectedIndex==1)
+		return(Math.floor(oz*0.0283495 + 0.5)+" kg");
+	return(Math.floor(oz/16+0.5)+" lbs");
+	}
+
+function PutVolume(oz)
+{
+	if (document.F.Units.selectedIndex==1)
+        console.log('Muriatic acid3='+Math.floor(oz*29.5735 + 0.5));
+
+		return(Math.floor(oz*29.5735 + 0.5)+" ml");
+	if (document.F.Units.selectedIndex==2) oz*=1.04084;
+	if (oz<10) return(Math.floor(oz+0.05)+"."+Math.floor(oz*10+0.5)%10+" oz");
+	return(Math.floor(oz+0.5)+" oz");
+	}
+
+function PutGallons(gal)
+{
+	if (document.F.Units.selectedIndex==1)
+		return(Math.floor(gal/7.48052*10 + 0.5)*100 + " liters");
+	if (document.F.Units.selectedIndex==2) gal*=0.832674;
+	if (gal<1000) return(Math.floor(gal / 10 + 0.5) * 10 +" gallons");
+	return(Math.floor(gal / 100 + 0.5) * 100 +" gallons");
+	}
+
+function CalcFC()
+{
+	var ozmul = [6854.95, 4149.03, 3565.44, 3936.84, 4828.12, 5199.52, 5422.41, 2637.5, 7489.4];
+	var vol = ["X", 0.9351, 0.9352, 0.9352, 0.9352, 0.9352, 0.978, "X"];
+	var temp;
+
+	if (parseFloat(document.F.FCfrom.value)<parseFloat(document.F.FCto.value)) {
+		// Bleach
+
+        console.log('document.F.FCto.value='+document.F.FCto.value);
+        console.log('document.F.FCfrom.value='+document.F.FCfrom.value);
+        console.log('parseFloat(document.F.FCpcnt.value)='+parseFloat(document.F.FCpcnt.value));
+        console.log('GetGallons()='+GetGallons());
+		temp=(parseFloat(document.F.FCto.value)-
+			parseFloat(document.F.FCfrom.value)) *
+			GetGallons() / 482.202 * 6 / parseFloat(document.F.FCpcnt.value);
+        console.log('temp.value='+temp);
+
+		document.F.FC1oz.value=PutVolume(temp);
+
+		// Trichlor, Dichlor, Cal-hypo 48%, 53%, 65%, 73%,
+		// Lith-hypo, Chlorine Gas
+		temp=(parseFloat(document.F.FCto.value)-
+			parseFloat(document.F.FCfrom.value)) *
+			GetGallons() / ozmul[document.F.FCpop.selectedIndex];
+		document.F.FC2oz.value=PutWeight(temp);
+		if (vol[document.F.FCpop.selectedIndex]=="X")
+			document.F.FC2vol.value="unknown";
+		else document.F.FC2vol.value=PutVolume(temp *
+			vol[document.F.FCpop.selectedIndex]);
+		}
+	else {
+		document.F.FC1oz.value=0;
+		document.F.FC2oz.value=document.F.FC2vol.value=0;
+		}
+	}
+
+function CalcPH()
+{
+	var mamul = [2.0, 1.11111, 1.0, .909091, 2.16897, 1.08448 ];
+	var temp, adj, delta, extra;
+
+	delta=parseFloat(document.F.PHto.value)-parseFloat(document.F.PHfrom.value);
+	delta*=GetGallons();
+	temp=(parseFloat(document.F.PHfrom.value)+ parseFloat(document.F.PHto.value))/2;
+	adj=(192.1626 + -60.1221*temp + 6.0752*temp*temp + -0.1943*temp*temp*temp) *
+		(parseInt(document.F.TAfrom.value)+13.91) / 114.6;
+	extra=(-5.476259 + 2.414292*temp + -0.355882*temp*temp + 0.01755*temp*temp*temp) * parseInt(document.F.BORfrom.value);
+	extra*=delta;
+	delta*=adj;
+
+	console.log('delta='+delta);
+	console.log('extra='+extra);
+
+	if (parseFloat(document.F.PHfrom.value)<parseFloat(document.F.PHto.value)) {
+		// Washing soda, soda ash
+		temp=(delta/218.68)+(extra/218.68);
+		document.F.PHU1oz.value=PutWeight(temp);
+		document.F.PHU1vol.value=PutVolume(temp * 0.8715);
+
+		// Borax
+		temp=(delta/110.05)+(extra/110.05);
+		document.F.PHU2oz.value=PutWeight(temp);
+		document.F.PHU2vol.value=PutVolume(temp * 0.9586);
+		}
+	else {
+		document.F.PHU1oz.value=document.F.PHU1vol.value=0;
+		document.F.PHU2oz.value=document.F.PHU2vol.value=0;
+		}
+
+	if (parseFloat(document.F.PHfrom.value)>parseFloat(document.F.PHto.value)) {
+        console.log('mamul[document.F.MApop.selectedIndex]='+mamul[document.F.MApop.selectedIndex]);
+
+		// Muriatic acid
+		temp=(delta / -240.15 * mamul[document.F.MApop.selectedIndex])+
+			(extra / -240.15 * mamul[document.F.MApop.selectedIndex]);
+        console.log('Muriatic acid='+temp);
+
+		document.F.PHD1oz.value=PutVolume(temp);
+        console.log('Muriatic acid='+PutVolume(temp));
+
+		// Dry acid
+		temp=(delta/-178.66)+(extra/-178.66);
+        console.log('Dry acid='+temp);
+
+		document.F.PHD2oz.value=PutWeight(temp);
+		document.F.PHD2vol.value=PutVolume(temp * 0.6657);
+		}
+	else {
+		document.F.PHD1oz.value=0;
+		document.F.PHD2oz.value=document.F.PHD2vol.value=0;
+		}
+	}
+
+function CalcTA()
+{
+	var temp;
+
+	document.F.PHTA.value=parseInt(document.F.TAfrom.value);
+	console.log('document.F.PHTA.value='+parseInt(document.F.TAfrom.value));
+
+	if (parseInt(document.F.TAfrom.value) < parseInt(document.F.TAto.value)) {
+		// Baking soda
+        console.log('parseInt(document.F.TAfrom.value)='+parseInt(document.F.TAfrom.value));
+        console.log('parseInt(document.F.TAto.value)='+parseInt(document.F.TAto.value));
+        console.log('GetGallons()='+GetGallons());
+
+		temp=(parseInt(document.F.TAto.value)-
+			parseInt(document.F.TAfrom.value)) *
+			GetGallons() / 4259.15;
+		document.F.TAoz.value=PutWeight(temp);
+		document.F.TAvol.value=PutVolume(temp * 0.7988);
+		}
+	else document.F.TAoz.value=document.F.TAvol.value=0;
+}
+
+function CalcCH()
+{
+	var temp;
+
+	if (parseInt(document.F.CHfrom.value) < parseInt(document.F.CHto.value)) {
+		// Calcium chloride
+		temp=(parseInt(document.F.CHto.value)-
+			parseInt(document.F.CHfrom.value)) *
+			GetGallons() / 6754.11;
+		document.F.CH1oz.value=PutWeight(temp);
+		document.F.CH1vol.value=PutVolume(temp * 0.7988);
+
+		// Calcium chloride dihydrate
+		temp=(parseInt(document.F.CHto.value)-
+			parseInt(document.F.CHfrom.value)) *
+			GetGallons() / 5098.82;
+		document.F.CH2oz.value=PutWeight(temp);
+		document.F.CH2vol.value=PutVolume(temp * 1.148);
+		document.F.CHpcnt.value="some";
+		}
+	else {
+		document.F.CH1oz.value=document.F.CH1vol.value=0;
+		document.F.CH2oz.value=document.F.CH2vol.value=0;
+		console.log('####='+(100-((parseInt(document.F.CHto.value)-parseInt(document.F.CHfill.value)) /(parseInt(document.F.CHfrom.value)-parseInt(document.F.CHfill.value)))*100));
+		if (parseInt(document.F.CHfrom.value) > parseInt(document.F.CHto.value)) {
+			if (parseInt(document.F.CHto.value) <
+				 parseInt(document.F.CHfill.value))
+				document.F.CHpcnt.value="can't";
+			else
+			    document.F.CHpcnt.value=Math.floor(100-((parseInt(document.F.CHto.value)-parseInt(document.F.CHfill.value)) /(parseInt(document.F.CHfrom.value)-parseInt(document.F.CHfill.value)))*100+0.5) + "%";
+			}
+		else document.F.CHpcnt.value="some";
+		}
+	}
+
+function CalcCYA()
+{
+	var temp;
+
+	if (parseInt(document.F.CYAfrom.value) < parseInt(document.F.CYAto.value)) {
+		// Stabilizer
+		temp=(parseInt(document.F.CYAto.value)-
+			parseInt(document.F.CYAfrom.value)) *
+			GetGallons() / 7489.51;
+		console.log('CYA1oz='+temp);
+		document.F.CYA1oz.value=PutWeight(temp);
+
+		console.log('CYA1vol='+(temp * 1.042));
+		document.F.CYA1vol.value=PutVolume(temp * 1.042);
+		temp=(parseInt(document.F.CYAto.value)-
+			parseInt(document.F.CYAfrom.value)) *
+			GetGallons() / 2890;
+		console.log('CYA2oz='+temp);
+		document.F.CYA2oz.value=PutVolume(temp);
+		document.F.CYApcnt.value="some";
+		}
+	else {
+		document.F.CYA1oz.value=document.F.CYA1vol.value=
+			document.F.CYA2oz.value=0;
+		if (parseInt(document.F.CYAfrom.value) >
+			parseInt(document.F.CYAto.value))
+		    document.F.CYApcnt.value=Math.floor(100-(parseInt(document.F.CYAto.value)/ parseInt(document.F.CYAfrom.value))*100+0.5) + "%";
+		else document.F.CYApcnt.value="some";
+		}
+	}
+
+function CalcSALT()
+{
+	var temp;
+
+	if (parseInt(document.F.SALTfrom.value)<parseInt(document.F.SALTto.value)) {
+		// Salt
+		temp=(parseInt(document.F.SALTto.value)-
+			parseInt(document.F.SALTfrom.value)) *
+			GetGallons() / 7468.64;
+		document.F.SALTlb.value=PutLbs(temp);
+		document.F.SALTpcnt.value="some";
+		}
+	else {
+		document.F.SALTlb.value=0;
+		if (parseInt(document.F.SALTfrom.value) >
+			parseInt(document.F.SALTto.value)) document.F.SALTpcnt.value=
+				Math.floor(100-(parseInt(document.F.SALTto.value)/
+				parseInt(document.F.SALTfrom.value))*100+0.5) + "%";
+		else document.F.SALTpcnt.value="some";
+		}
+	}
+
+function CalcBOR()
+{
+	var bormul = [ 849.271, 1309.52, 1111.69 ];
+	var temp;
+
+	document.F.PHBOR.value=parseInt(document.F.BORfrom.value);
+	if (parseInt(document.F.BORfrom.value) < parseInt(document.F.BORto.value)) {
+		// Borax & boric acid
+		temp=(parseInt(document.F.BORto.value)-
+			parseInt(document.F.BORfrom.value)) *
+			GetGallons() / bormul[document.F.BORpop.selectedIndex];
+		console.log('temp='+temp);
+		document.F.BORoz.value=PutWeight(temp);
+        console.log('temp='+temp);
+
+		if (document.F.BORpop.selectedIndex==1) {
+            console.log('BORvol='+(temp * 1.075));
+
+			document.F.BORvol.value=PutVolume(temp * 1.075);
+			document.F.BORacid.value=0;
+			}
+		else if (document.F.BORpop.selectedIndex==2) {
+			document.F.BORvol.value=PutVolume(temp * 0.5296);
+			document.F.BORacid.value=PutVolume(temp * 0.624);	// Muriatic acid
+			}
+		else {
+            console.log('BORvol='+(temp * 0.9586));
+
+			document.F.BORvol.value=PutVolume(temp * 0.9586);
+			document.F.BORacid.value=PutVolume(temp * 0.4765);	// Muriatic acid
+			}
+		document.F.BORpcnt.value="some";
+		}
+	else {
+		document.F.BORoz.value=document.F.BORvol.value=0;
+		document.F.BORacid.value=0;
+		if (parseInt(document.F.BORfrom.value) >
+			parseInt(document.F.BORto.value)) document.F.BORpcnt.value=
+				Math.floor(100-(parseInt(document.F.BORto.value)/
+				parseInt(document.F.BORfrom.value))*100+0.5) + "%";
+		else document.F.BORpcnt.value="some";
+		}
+	}
+
+function CSI(PH,TA,CH,CYA,Salt,Borate,Temp)
+{
+	var Sodium, extra_NaCl, CarbAlk, Ionic, TDS, CSI;
+
+	if (PH<6 || PH>9 || isNaN(PH)) return("PH Err");
+	TA=parseInt(TA);
+	CH=parseInt(CH);
+	CYA=parseInt(CYA)
+	Salt=parseInt(Salt);
+	Borate=parseInt(Borate);
+	if (document.F.Units.selectedIndex!=1) Temp=(parseInt(Temp)-32)*5/9;
+	else Temp=parseInt(Temp);
+//	if (Salt<=0) Salt = CH*1.1678 + TA*1.6859 + Borate*2.6976;
+//	Sodium = 23*( (TA - CYA/3)*2/100 + CYA/129 + Salt/58.4 - 2*CH/100 );
+//	TDS = CH*(40/100) + (TA - CYA/3)*2*(61/100) + CYA*(128/129) +
+//		Borate*(61.8/10.8) + Salt*(35.5/58.4) + Sodium;
+	CarbAlk = TA - 0.38772*CYA/(1+Math.pow(10,6.83-PH)) -
+		4.63*Borate/(1+Math.pow(10,9.11-PH));
+//	extra_NaCl = TDS - (1.109*CH + 1.679*CarbAlk + CYA);
+	extra_NaCl = Salt - 1.1678*CH;
+	if (extra_NaCl<0) extra_NaCl=0;
+	Ionic = (1.5*CH+1*TA)/50045 + extra_NaCl/58440;
+	CSI = PH-11.677 + Math.log(CH)/Math.LN10 + Math.log(CarbAlk)/Math.LN10 -
+		2.56*Math.sqrt(Ionic)/(1+1.65*Math.sqrt(Ionic)) -
+		1412.5/(Temp+273.15) + 4.7375;
+	return(Math.floor(CSI*100+0.5)/100);
+	}
+
+function CalcCSIfrom()
+{
+	document.F.CSIfrom.value=CSI(document.F.PHfrom.value,
+		document.F.TAfrom.value,document.F.CHfrom.value,
+		document.F.CYAfrom.value,document.F.SALTfrom.value,
+		document.F.BORfrom.value,document.F.TEMP.value);
+	document.F.Status1.value=document.F.Status2.value="";
+	}
+
+function CalcCSIto()
+{
+	document.F.CSIto.value=CSI(document.F.PHto.value,
+		document.F.TAto.value,document.F.CHto.value,
+		document.F.CYAto.value,document.F.SALTto.value,
+		document.F.BORto.value,document.F.TEMP.value);
+
+	document.F.Status1.value=document.F.Status2.value="";
+	SaveSettings();
+	}
+
+function CalcSUG()
+{
+	var cya;
+
+	cya=parseInt(document.F.CYAfrom.value);
+	document.F.SUGFCswg.value=Math.max(1,Math.floor(cya*0.045+0.7));
+	document.F.SUGFCmin.value=Math.max(1,Math.floor(cya*0.075+0.7));
+	document.F.SUGFCtarg.value=Math.max(3,Math.floor(cya/10+3.5));
+	document.F.SUGFCshock.value=Math.max(10,Math.floor(cya*0.393+0.5));
+	document.F.SUGFCmust.value=Math.max(12,Math.floor(cya/2+4.5));
+	if (document.F.FROMpop.selectedIndex==0)
+		document.getElementById("FCgoal").innerHTML="Not Setup";
+	else if (document.F.FROMpop.selectedIndex==3)
+		document.getElementById("FCgoal").innerHTML="1 to 6";
+	else document.getElementById("FCgoal").innerHTML=
+		((document.F.CHLORINEpop.selectedIndex==2)?
+		  document.F.SUGFCswg.value:document.F.SUGFCmin.value)+
+		" to "+document.F.SUGFCtarg.value;
+	}
+
+function CalcGOAL()
+{
+	var from, chlorine, surface;
+
+	CalcSUG();
+	from=document.F.FROMpop.selectedIndex;
+	chlorine=document.F.CHLORINEpop.selectedIndex;
+	document.F.CHLORINEpop.disabled=(from==3);
+	surface=document.F.SURFACEpop.selectedIndex;
+	document.F.SURFACEpop.disabled=(from==3);
+	if (from==0 || (from==2 && (chlorine==0 || surface==0))) {
+		document.getElementById("PHgoal").innerHTML="Not Setup";
+		document.getElementById("TAgoal").innerHTML="Not Setup";
+		document.getElementById("CHgoal").innerHTML="Not Setup";
+		document.getElementById("CYAgoal").innerHTML="Not Setup";
+		}
+	else if (from==1) {
+		document.getElementById("PHgoal").innerHTML="7.2 to 7.8";
+		document.getElementById("TAgoal").innerHTML="80 to 120";
+		document.getElementById("CHgoal").innerHTML="200 to 400";
+		document.getElementById("CYAgoal").innerHTML="30 to 80";
+		}
+	else if (from==2) {
+		document.getElementById("PHgoal").innerHTML="7.5 to 7.8";
+		document.getElementById("TAgoal").innerHTML=(chlorine==1)?
+			"70 to 90+":(chlorine==2)?"60 to 80":"100 to 120+";
+		document.getElementById("CHgoal").innerHTML=(surface==1)?
+			"250 to 350":(surface==2)?"50 to 300":"220 to 320";
+		document.getElementById("CYAgoal").innerHTML=(chlorine==2)?
+			"70 to 80":"30 to 50";
+		}
+	else if (from==3) {
+		document.getElementById("PHgoal").innerHTML="7.4 to 7.8";
+		document.getElementById("TAgoal").innerHTML="50 to 80";
+		document.getElementById("CHgoal").innerHTML="120 to 200";
+		document.getElementById("CYAgoal").innerHTML="20 to 40";
+		}
+	}
+
+function CalcSZ()
+{
+	var volmult = [7.48052, 7.48052, 5.87518];
+	var temp, wid, len;
+
+	wid=parseFloat(document.F.SZwid.value);
+	len=parseFloat(document.F.SZlen.value);
+	if (document.F.SZpop.selectedIndex==2) {
+		len=wid;
+		document.F.SZlen.style.color=document.F.SZunit2.style.color="#BBBBBB";
+		document.F.SZlen.readOnly=true;
+		}
+	else {
+		document.F.SZlen.style.color=document.F.SZunit2.style.color="#000000";
+		document.F.SZlen.readOnly=false;
+		}
+	if (document.F.SZpop.selectedIndex==1 && len<wid) {
+		temp=wid;
+		wid=len;
+		len=temp;
+		}
+	temp=wid*len;
+	if (document.F.SZpop.selectedIndex==1) temp=temp - 0.214602*wid*wid;
+	temp=temp * parseFloat(document.F.SZdeep.value) *
+		volmult[document.F.SZpop.selectedIndex];
+	document.F.SZvol.value=PutGallons(temp);
+	SaveSettings();
+	}
+
+var eff_units = [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+				  1, 1, 1, 0, 0, 1, 1, 1, 1, 1,
+				  1, 1, 1, 1, 1, 0, 2 ];
+		// 0-volume(oz,ml), 1-weight(oz,g), 2-weight(lbs,kg)
+
+function Format(value)
+{
+	if (value<9.95) return(Math.floor(value*10+0.5)/10);
+	else return(Math.floor(value+0.5));
+	}
+
+function CalcEFF()
+{
+	var oz, unit, result;
+
+	oz=parseFloat(document.F.EFFoz.value);
+	unit=eff_units[document.F.EFFpop.selectedIndex];
+	if (document.F.Units.selectedIndex==1) {		// Metric
+		if (unit==1) {
+			document.F.EFFunit.value="g";
+			oz=oz*0.035274;
+			}
+		else if (unit==2) {
+			document.F.EFFunit.value="kg";
+			oz=oz*2.20462;
+			}
+		else {
+			document.F.EFFunit.value="ml";
+			oz=oz*0.033814;
+			}
+		}
+	else if (document.F.Units.selectedIndex==2) {	// Imperial
+		if (unit==2) document.F.EFFunit.value="lbs";
+		else {
+			document.F.EFFunit.value="oz";
+			if (unit==0) oz=oz*0.96076;
+			}
+		}
+	else {											// U.S.
+		if (unit==2) document.F.EFFunit.value="lbs";
+		else document.F.EFFunit.value="oz";
+		}
+	switch (document.F.EFFpop.selectedIndex) {
+
+	case 0:					// 5.25% bleach
+		oz=oz*525/600;
+	case 1:					// 6% bleach
+		oz=oz*600/825;
+	case 2:
+		oz=oz*0.84867552;
+	case 3:					// 10% bleach
+		oz=oz*100/125;
+	case 4:					// 12.5% bleach
+		result="raise FC by "+Format(oz / GetGallons() * 976.562);
+		result=result+" and raise Salt by "+Format(oz / GetGallons() *
+			1607);
+		break;
+	case 5:					// trichlor
+		result="raise FC by "+Format(oz / GetGallons() * 6854.95);
+		result=result+", raise CYA by "+Format(oz / GetGallons() *
+			4159.41);
+		result=result+", lower pH by "+Math.floor(oz / GetGallons() *
+			367 * 100 + 0.5) / 100;
+		result=result+", and raise Salt by "+Format(oz / GetGallons() *
+			5600);
+		break;
+	case 6:					// dichlor
+		result="raise FC by "+Format(oz / GetGallons() * 4149.03);
+		result=result+", raise CYA by "+Format(oz / GetGallons() *
+			3776.46);
+		result=result+", lower pH by "+Math.floor(oz / GetGallons() *
+			158 * 100 + 0.5) / 100;
+		result=result+", and raise Salt by "+Format(oz / GetGallons() *
+			3384);
+		break;
+	case 7:					// 48% cal-hypo
+		oz=oz*48/53;
+	case 8:					// 53% cal-hypo
+		oz=oz*53/65;
+	case 9:					// 65% cal-hypo
+		oz=oz*65/70;
+	case 10:				// 70% cal-hypo
+		oz=oz*70/73;
+	case 11:				// 73% cal-hypo
+		result="raise FC by "+Format(oz / GetGallons() * 5422.41);
+		result=result+", raise CH by "+Format(oz / GetGallons() *
+			3827.09);
+		result=result+", and raise Salt by "+Format(oz / GetGallons() *
+			5500);
+		break;
+	case 12:					// lithium hypochlorite
+		result="raise FC by "+Format(oz / GetGallons() * 2637.5);
+		result=result+" and raise Salt by "+Format(oz / GetGallons() *
+			4170);
+		break;
+	case 13:				// chlorine gas
+		result="raise FC by "+Format(oz / GetGallons() * 7489.4);
+		result=result+", lower pH by "+Math.floor(oz / GetGallons() * 625 *
+			100 + 0.5) / 100;
+		result=result+", and raise Salt by "+Format(oz / GetGallons() *
+			6140);
+		break;
+	case 14:				// 15.725% muriatic acid
+		oz=oz/2;
+	case 15:				// 31.45% muriatic acid
+		result="lower pH by "+Math.floor(oz / GetGallons() * 240.15 *
+			100 + 0.5) / 100;
+		result=result+" and lower TA by "+Format(oz / GetGallons() *
+			3911.47);
+		break;
+	case 16:				// dry acid
+		result="lower pH by "+Math.floor(oz / GetGallons() * 167.9 *
+			100 + 0.5) / 100;
+		result=result+" and lower TA by "+Format(oz / GetGallons() *
+			2909.47);
+		break;
+	case 17:				// washing soda or soda ash
+		result="raise pH by "+Math.floor(oz / GetGallons() * 217.1 *
+			100 + 0.5) / 100;
+		result=result+" and raise TA by "+Format(oz / GetGallons() *
+			7072.46);
+		break;
+	case 18:				// borax (20 Mule Team)
+		result="raise pH by "+Math.floor(oz / GetGallons() * 109.1 *
+			100 + 0.5) / 100;
+		result=result+", raise Borate by "+Format(oz / GetGallons() *
+			849.271);
+		result=result+", and raise TA by "+Format(oz / GetGallons() *
+			1949.93);
+		break;
+	case 19:				// sodium tetraborate pentahydrate
+		result="raise pH by "+Math.floor(oz / GetGallons() * 166.8 *
+			100 + 0.5) / 100;
+		result=result+", raise Borate by "+Format(oz / GetGallons() *
+			1111.69);
+		result=result+", and raise TA by "+Format(oz / GetGallons() *
+			2548.89);
+		break;
+	case 20:				// boric acid
+		result="raise Borate by "+Format(oz / GetGallons() * 1309.52);
+		result=result+" and lower PH by "+Math.floor(oz / GetGallons() *
+			7.559 * 100 + 0.5) / 100;
+		break;
+	case 21:				// caustic soda (lye)
+		result="raise pH by "+Math.floor(oz / GetGallons() * 546.3 *
+			100 + 0.5) / 100;
+		result=result+" and raise TA by "+Format(oz / GetGallons() *
+			9135.78);
+		break;
+	case 22:				// baking soda
+		result="raise TA by "+Format(oz / GetGallons() * 4461.56);
+		result=result+" and raise pH by "+Math.floor(oz / GetGallons() *
+			9.091 * 100 + 0.5) / 100;
+		break;
+	case 23:				// calcium chloride
+		result="raise CH by "+Format(oz / GetGallons() * 6754.11);
+		break;
+	case 24:				// calcium chloride dihydrate
+		result="raise CH by "+Format(oz / GetGallons() * 5098.82);
+		break;
+	case 25:				// stabilizer
+		result="raise CYA by "+Format(oz / GetGallons() * 7489.51);
+		result=result+" and lower pH by "+Math.floor(oz / GetGallons() *
+			138.8 * 100 + 0.5) / 100;
+		break;
+	case 26:				// liquid stabilizer
+		result="raise CYA by "+Format(oz / GetGallons() * 2890);
+		break;
+	case 27:				// salt
+		result="raise Salt by "+Format(oz / GetGallons() * 7468.64 *
+			16);
+		break;
+		}
+	document.F.EFFresult.value=result+".";
+	SaveSettings();
+	}
+
+function CalcEFFUnits(new_unit,old)
+{
+	var unit=eff_units[document.F.EFFpop.selectedIndex];
+	var factor;
+
+	if (new_unit==0) {
+		if (old==1) {				// Metric to US
+			if (unit==0) factor=0.033814;		// Liquid
+			else if (unit==1) factor=0.035274;	// Weight
+			else if (unit==2) factor=2.20462;	// Lbs/kg
+			}
+		else if (old==2) {			// Imperial to US
+			if (unit==0) factor=0.96076;		// Liquid
+			else if (unit==1) factor=1;			// Weight
+			else if (unit==2) factor=1;			// Lbs/kg
+			}
+		}
+	else if (new_unit==1) {
+		if (old==0) {				// US to Metric
+			if (unit==0) factor=29.5735;		// Liquid
+			else if (unit==1) factor=28.3495;	// Weight
+			else if (unit==2) factor=0.453592;	// Lbs/kg
+			}
+		else if (old==2) {			// Imperial to Metric
+			if (unit==0) factor=28.4131;		// Liquid
+			else if (unit==1) factor=28.3495;	// Weight
+			else if (unit==2) factor=0.453592;	// Lbs/kg
+			}
+		}
+	else if (new_unit==2) {
+		if (old==0) {				// US to Imperial
+			if (unit==0) factor=1.04084;		// Liquid
+			else if (unit==1) factor=1;			// Weight
+			else if (unit==2) factor=1;			// Lbs/kg
+			}
+		else if (old==1) {			// Metric to Imperial
+			if (unit==0) factor=0.0351951;		// Liquid
+			else if (unit==1) factor=0.035274;	// Weight
+			else if (unit==2) factor=2.20462;	// Lbs/kg
+			}
+		}
+	document.F.EFFoz.value=Math.floor(parseFloat(document.F.EFFoz.value)*
+		factor + 0.5);
+	}
+
+function CalcAll()
+{
+	CalcFC();
+	CalcPH();
+	CalcTA();
+	CalcCH();
+	CalcCYA();
+	CalcSALT();
+	CalcBOR();
+	CalcCSIfrom();
+	CalcCSIto();
+	CalcSUG();
+	CalcGOAL();
+	CalcSZ();
+	CalcEFF();
+	document.F.Status1.value=document.F.Status2.value="";
+	}
+
+function CalcUnits()
+{
+	if (document.F.Units.selectedIndex==1) {
+		document.F.SIZEunit.value="liters";
+		document.F.TEMPunit.value="Celsius";
+		document.F.SZunit1.value=document.F.SZunit2.value=
+			document.F.SZunit3.value="m";
+		document.F.FCjug.options[0].text="2 liter";
+		document.F.FCjug.options[1].text="2.85 liter";
+		document.F.FCjug.options[2].text="3.6 liter";
+		document.F.FCjug.options[3].text="5 liter";
+		if (old_unit==0) document.F.SIZE.value=
+			Math.floor(parseInt(document.F.SIZE.value)*3.78541+0.5);
+		else if (old_unit==2) document.F.SIZE.value=
+			Math.floor(parseInt(document.F.SIZE.value)*4.54609+0.5);
+		if (old_unit!=1) document.F.TEMP.value=
+			Math.floor((parseInt(document.F.TEMP.value)-32)*5/9+0.5);
+		}
+	else {
+		document.F.SIZEunit.value="gallons";
+		document.F.TEMPunit.value="Fahrenheit";
+		document.F.SZunit1.value=document.F.SZunit2.value=
+			document.F.SZunit3.value="ft";
+		document.F.FCjug.options[0].text="96 oz";
+		document.F.FCjug.options[1].text="128 oz";
+		document.F.FCjug.options[2].text="174 oz";
+		document.F.FCjug.options[3].text="182 oz";
+		if (document.F.Units.selectedIndex==2) {
+			if (old_unit==0) document.F.SIZE.value=
+				Math.floor(parseInt(document.F.SIZE.value)*0.832674+0.5);
+			else if (old_unit==1) document.F.SIZE.value=
+				Math.floor(parseInt(document.F.SIZE.value)*0.219969+0.5);
+			}
+		else {
+			if (old_unit==1) document.F.SIZE.value=
+				Math.floor(parseInt(document.F.SIZE.value)*0.264172+0.5);
+			else if (old_unit==2) document.F.SIZE.value=
+				Math.floor(parseInt(document.F.SIZE.value)*1.20095+0.5);
+			}
+		if (old_unit==1) document.F.TEMP.value=
+			Math.floor(parseInt(document.F.TEMP.value)*9/5+0.5)+32;
+		}
+	CalcEFFUnits(document.F.Units.selectedIndex,old_unit);
+	CalcAll();
+	old_unit=document.F.Units.selectedIndex;
+	}
+
+function StatusWeight(oz)
+{
+	oz=parseFloat(oz);
+	if (document.F.Units.selectedIndex==1) {
+		if (oz==0) document.F.Status1.value="None";
+		else {
+			if (oz>10000) oz=Math.floor((oz+500)/1000)*1000;
+			else if (oz>1000) oz=Math.floor((oz+50)/100)*100;
+			else if (oz>100) oz=Math.floor((oz+5)/10)*10;
+			document.F.Status1.value=oz/1000+" kg";
+			}
+		}
+	else {
+		if (oz<0) document.F.Status1.value=oz+" oz";
+		else if (oz==0) document.F.Status1.value="None";
+		else {
+			if (oz>=16) {
+				if (oz>10*16) oz=Math.floor((oz+8)/16)*16;
+				document.F.Status1.value=(Math.floor(oz/16))+" lb";
+				if (oz>=2*16)
+					document.F.Status1.value=document.F.Status1.value+"s";
+				oz=oz-Math.floor(oz/16)*16;
+				if (oz>0)
+					document.F.Status1.value=document.F.Status1.value+" ";
+				}
+			else document.F.Status1.value="";
+			if (oz>0) document.F.Status1.value=document.F.Status1.value+
+				oz+" oz";
+			}
+		}
+	document.F.Status2.value=document.F.Status1.value;
+	}
+
+function StatusVolume(oz)
+{
+	var div, tsp;
+
+	oz=parseFloat(oz);
+	if (document.F.Units.selectedIndex==1) {
+		if (oz==0) document.F.Status1.value="None";
+		else {
+			if (oz>10000) oz=Math.floor((oz+500)/1000)*1000;
+			else if (oz>1000) oz=Math.floor((oz+50)/100)*100;
+			else if (oz>100) oz=Math.floor((oz+5)/10)*10;
+			document.F.Status1.value=oz/1000+" liters";
+			}
+		}
+	else {
+		if (oz<0) document.F.Status1.value=oz+" oz";
+		else if (oz==0) document.F.Status1.value="None";
+		else {
+			if (document.F.Units.selectedIndex==2) {
+				div=160;
+				tsp=0.5/4.8;
+				}
+			else {
+				div=128;
+				tsp=0.5/6;
+				}
+			if (oz>10*div) oz=Math.floor((oz+div/2)/div)*div;
+			else if (oz>10*div/4) oz=Math.floor((oz+div/8)/(div/4))*(div/4);
+			else if (oz>10*div/16) oz=Math.floor((oz+div/32)/(div/16))*(div/16);
+			if (oz>=div) {
+				document.F.Status1.value=(Math.floor(oz/div))+" gallon";
+				if (oz>=2*div) document.F.Status1.value=
+					document.F.Status1.value+"s";
+				oz=oz-Math.floor(oz/div)*div;
+				if (oz>0) document.F.Status1.value=document.F.Status1.value+" ";
+				}
+			else document.F.Status1.value="";
+			div=div/4;
+			if (oz>=div) {
+				document.F.Status1.value=document.F.Status1.value+
+					Math.floor(oz/div)+" quart";
+				if (oz>=2*div) document.F.Status1.value=
+					document.F.Status1.value+"s";
+				oz=oz-Math.floor(oz/div)*div;
+				if (oz>0) document.F.Status1.value=document.F.Status1.value+" ";
+				}
+			div=div/4;
+			if (oz>=div) {
+				document.F.Status1.value=document.F.Status1.value+
+					Math.floor(oz/div)+" cup";
+				if (oz>=2*div) document.F.Status1.value=
+					document.F.Status1.value+"s";
+				oz=oz-Math.floor(oz/div)*div;
+				if (oz>0) document.F.Status1.value=document.F.Status1.value+" ";
+				}
+			if (oz>=1-tsp) {
+				document.F.Status1.value=document.F.Status1.value+
+					Math.floor(oz+tsp)+" oz";
+				oz=oz-Math.floor(oz+tsp);
+				if (oz<0) oz=0;
+				if (oz>=tsp) document.F.Status1.value=
+					document.F.Status1.value+" ";
+				}
+			if (oz>=tsp) document.F.Status1.value=document.F.Status1.value+
+				Math.floor((oz+tsp)/(tsp*2))+" tsp";
+			}
+		}
+	document.F.Status2.value=document.F.Status1.value;
+	}
+
+function StatusBleach(oz)
+{
+	var jugoz = [96, 128, 174, 182, 30, 64, 121];
+	var jugliter = [2000, 2850, 3600, 5000, 887, 1893, 3578];
+	var jug;
+
+	StatusVolume(oz);
+	oz=parseInt(oz);
+	if (document.F.Units.selectedIndex==1) {
+		jug=jugliter[document.F.FCjug.selectedIndex];
+		if (oz>=jug) {
+			if (oz>jug*10) document.F.Status1.value=document.F.Status1.value+
+				" or "+ Math.floor((oz+jug/2)/jug)+" ("+jug/1000+" liter) jugs";
+			else document.F.Status1.value=document.F.Status1.value+" or "+
+				Math.floor(oz/jug*10+0.5)/10+" ("+jug/1000+" liter) jugs";
+			}
+		}
+	else {
+		jug=jugoz[document.F.FCjug.selectedIndex];
+		if (oz>=jug) {
+			if (oz>jug*10) document.F.Status1.value=document.F.Status1.value+
+				" or "+ Math.floor((oz+jug/2)/jug)+" ("+jug+" oz) jugs";
+			else document.F.Status1.value=document.F.Status1.value+" or "+
+				Math.floor(oz/jug*10+0.5)/10+" ("+jug+" oz) jugs";
+			}
+		}
+	document.F.Status2.value=document.F.Status1.value;
+	}
+
+function StatusPcnt(value)
+{
+	if (isNaN(parseInt(value)))
+		document.F.Status1.value="No water replacement required.";
+	else document.F.Status1.value="Replace "+value+" of your water.";
+	document.F.Status2.value=document.F.Status1.value;
+	}
+
+function StatusBorax(oz)
+{
+	StatusWeight(oz);
+	oz=parseInt(oz);
+	if (document.F.Units.selectedIndex==1) oz/=28.3495;
+	if (oz>=76) {
+		document.F.Status1.value=document.F.Status1.value+" or "+
+			Math.floor(oz/76*10+0.5)/10+" (76 oz) boxes";
+		document.F.Status2.value=document.F.Status1.value;
+		}
+	}
+
+function StatusBags(lbs)
+{
+	lbs=parseInt(lbs);
+	if (document.F.Units.selectedIndex==1) {
+		if (lbs<0) document.F.Status1.value=lbs+" kg(s)";
+		else if (lbs==0) document.F.Status1.value="None";
+		else {
+			if (lbs>=25) {
+				if (lbs>10*25) lbs=Math.floor((lbs+25/2)/25)*25;
+				document.F.Status1.value=(Math.floor(lbs/25))+" (25 kg) bag";
+				if (lbs>=50)
+					document.F.Status1.value=document.F.Status1.value+"s";
+				lbs=lbs-Math.floor(lbs/25)*25;
+				if (lbs>0) document.F.Status1.value=document.F.Status1.value+
+					" and ";
+				}
+			else document.F.Status1.value="";
+			if (lbs>0) document.F.Status1.value=document.F.Status1.value+lbs+" kg(s)";
+			}
+		}
+	else {
+		if (lbs<0) document.F.Status1.value=lbs+" lb(s)";
+		else if (lbs==0) document.F.Status1.value="None";
+		else {
+			if (lbs>=40) {
+				if (lbs>10*40) lbs=Math.floor((lbs+40/2)/40)*40;
+				document.F.Status1.value=(Math.floor(lbs/40))+" (40 lb) bag";
+				if (lbs>=80)
+					document.F.Status1.value=document.F.Status1.value+"s";
+				lbs=lbs-Math.floor(lbs/40)*40;
+				if (lbs>0) document.F.Status1.value=document.F.Status1.value+
+					" and ";
+				}
+			else document.F.Status1.value="";
+			if (lbs>0) document.F.Status1.value=document.F.Status1.value+
+				lbs+" lb(s)";
+			}
+		}
+	document.F.Status2.value=document.F.Status1.value;
+	}
+
+function StatusCSI(value)
+{
+	value=parseFloat(value);
+	if (value <= -0.6) document.F.Status1.value="Corrosion of plaster likely";
+	else if (value <= -0.3) document.F.Status1.value="Potential to become corrosive to plaster";
+	else if (value < 0.3) document.F.Status1.value="Balanced";
+	else if (value < 0.6) document.F.Status1.value="Potential to become scaling";
+	else if (value >= 0.6) document.F.Status1.value="Scaling likely";
+	else document.F.Status1.value="Invald Inputs";
+	document.F.Status2.value=document.F.Status1.value;
+	}
+
+function StatusSUG(name,value)
+{
+	document.F.Status1.value=name+" FC target "+value;
+	document.F.Status2.value=document.F.Status1.value;
+	}
+
+function StatusEFF()
+{
+	var oz, unit;
+
+	oz=parseInt(document.F.EFFoz.value);
+	unit=eff_units[document.F.EFFpop.selectedIndex];
+	if (unit==1) StatusWeight(oz);
+	else if (unit==2) StatusBags(oz);
+	else StatusVolume(oz);
+	}
+
+var GoToField;
+
+function DoGoTo()
+{
+	GoToField.focus();
+	GoToField.select();
+	}
+
+function GoTo(field)
+{
+	GoToField=field;
+	setTimeout('DoGoTo()', 50);
+	}
+
+function DoLoaded()
+{
+	RestoreSettings();
+	ls="/log____image.gif?summarylog&je="+navigator.javaEnabled()+
+		"&sw="+screen.width+"&sh="+screen.height;
+	if (screen.pixelDepth) ls+="&sd="+screen.pixelDepth;
+	else if (screen.colorDepth) ls+="&sd="+screen.colorDepth;
+	if (navigator.language) ls+="&la="+navigator.language;
+	else if (navigator.userLanguage) ls+="&la="+navigator.userLanguage;
+	if (!document.all) {
+		document.cookie="log____cc=1";
+		ls+="&co="+(document.cookie?true:false);
+		}
+	else ls+="&co="+navigator.cookieEnabled;
+	if (window.innerWidth) {
+		ls+="&ww="+window.innerWidth;
+		ls+="&wh="+window.innerHeight;
+		}
+	else if (document.documentElement && document.documentElement.clientWidth) {
+		ls+="&ww="+document.documentElement.clientWidth;
+		ls+="&wh="+document.documentElement.clientHeight;
+		}
+	else if (document.body && document.body.clientWidth) {
+		ls+="&ww="+document.body.clientWidth;
+		ls+="&wh="+document.body.clientHeight;
+		}
+	li=new Image();
+	li.src=ls;
+	}
+
+//--></script>
+<style type="text/css"></style></head>
+<body bgcolor="#FFFFFF" text="#000000" link="#000066" vlink="#333333" alink="#999999" marginheight="0" topmargin="0" bottommargin="0" marginwidth="0" leftmargin="0" rightmargin="0" onload="DoLoaded();">
+<center>
+<table width="770" cellpadding="0" cellspacing="0" border="0">
+<tbody><tr><td align="left">
+
+<div style="padding-top:10px">
+<a href="http://www.troublefreepool.com/">
+<table width="100%" border="0" align="center" cellspacing="0" cellpadding="0">
+<tbody><tr>
+<td width="185" height="96" style="background:url(&#39;/images/global/HeadLeft.png&#39;);">&nbsp;</td>
+<td style="background:url(&#39;/images/global/HeadFillerL.png&#39;);">&nbsp;</td>
+<td width="439" height="96" style="background:url(&#39;/images/global/HeadMiddle.png&#39;);">&nbsp;</td>
+<td style="background:url(&#39;/images/global/HeadFillerR.png&#39;);">&nbsp;</td>
+<td width="148" height="96" style="background:url(&#39;/images/global/HeadRight.png&#39;);">&nbsp;</td>
+</tr>
+</tbody></table>
+</a>
+</div>
+<h1>PoolMath</h1>
+
+<p>PoolMath takes care of all the math that can come up while you are working at keeping your swimming pool's water chemistry in balance, telling you how much of each chemical to add. If you have comments or questions about PoolMath please post in the <a href="http://www.troublefreepool.com/forums/14-Chemistry-201">Chemistry 201</a> section of the forum. For help with your pool try the <a href="http://www.troublefreepool.com/forums/27-Just-Getting-Started">Just Getting Started</a> area of the forum, or another section as appropriate.</p>
+
+<p><noscript>
+&lt;h1&gt;Warning - Javascript must be enabled for PoolMath to work!!!&lt;/h1&gt;
+</noscript>
+
+</p><form method="Get" name="F" action="javascript:CalcAll(); return false;">
+<table border="1">
+
+<tbody><tr class="ClassHEAD"><td></td><td align="center">Now</td><td align="center">Target</td><td align="left">
+<input type="button" value="Calculate" class="sans" onclick="CalcAll(); return false;"></td>
+<td align="right">Units&nbsp;<select name="Units" onchange="CalcUnits();">
+<option selected="">U.S.</option>
+<option>Metric</option>
+<option>Imperial</option>
+</select></td></tr>
+
+<tr class="ClassSIZE"><td align="center">Size</td><td colspan="2" align="center"><nobr><input type="text" name="SIZE" size="6" value="10000" onchange="CalcAll();"><input type="text" name="SIZEunit" readonly="" size="7" value="gallons" class="ClassSIZE" onfocus="GoTo(document.F.FCfrom);"></nobr></td><td colspan="2" class="ClassNORM" align="center"><input type="text" name="Status1" size="44" readonly="" class="ClassNORM"> Mouse over a field for detail</td></tr>
+
+<tr class="ClassFC">
+<td rowspan="2" align="center">FC</td>
+<td colspan="2" style="height: 100%;"><center>Goal: <div id="FCgoal" style="display: inline;">4 to 8</div></center></td>
+<td rowspan="2" colspan="2" align="left">Add <input type="text" name="FC1oz" size="9" value="0" readonly="" class="ClassFC" onmouseover="StatusBleach(document.F.FC1oz.value);" onfocus="StatusBleach(document.F.FC1oz.value);">
+of <input type="text" name="FCpcnt" size="4" value="6" onchange="CalcFC(); SaveSettings();">% bleach. Jug size
+<select name="FCjug" onchange="SaveSettings();">
+<option selected="">2 liter</option>
+<option>2.85 liter</option>
+<option>3.6 liter</option>
+<option>5 liter</option>
+<option>30 oz</option>
+<option>64 oz</option>
+<option>121 oz</option>
+</select>.<br>
+or add <input type="text" name="FC2oz" size="7" value="0" readonly="" class="ClassFC" onmouseover="StatusWeight(document.F.FC2oz.value);" onfocus="StatusWeight(document.F.FC2oz.value);"> by weight
+or <input type="text" name="FC2vol" size="8" value="0" readonly="" class="ClassFC" onmouseover="StatusVolume(document.F.FC2vol.value);" onfocus="StatusVolume(document.F.FC2vol.value);"> by volume of
+<select name="FCpop" onchange="CalcFC(); SaveSettings();">
+<option selected="">trichlor</option>
+<option>dichlor</option>
+<option>cal-hypo 48%</option>
+<option>cal-hypo 53%</option>
+<option>cal-hypo 65%</option>
+<option>cal-hypo 70%</option>
+<option>cal-hypo 73%</option>
+<option>lithium-hypo</option>
+<option>chlorine gas</option>
+</select>.<br>
+Note: Dichlor and trichlor add CYA and lower pH. Cal-hypo adds CH.</td></tr>
+
+<tr class="ClassFC">
+<td align="center"><input type="text" name="FCfrom" size="4" value="4" onchange="CalcFC();"></td>
+<td align="center"><input type="text" name="FCto" size="4" value="4" onchange="CalcFC(); SaveSettings();"></td>
+</tr>
+
+<tr class="ClassPH"><td rowspan="2" align="center">pH</td>
+<td colspan="2" style="height: 100%;"><center>Goal: <div id="PHgoal" style="display: inline;">7.5 to 7.8</div></center></td>
+<td colspan="2" rowspan="2" align="left">Given TA of <input type="text" name="PHTA" size="4" readonly="" class="ClassPH" onmouseover="StatusWeight(document.F.PHU1oz.value);" onfocus="StatusWeight(document.F.PHU1oz.value); GoTo(document.F.PHfrom);"> and Borate of <input type="text" name="PHBOR" size="4" readonly="" class="ClassPH">:<br>
+Add <input type="text" name="PHU1oz" size="7" value="0" readonly="" class="ClassPH" onmouseover="StatusWeight(document.F.PHU1oz.value);"> by weight
+or <input type="text" name="PHU1vol" size="7" value="0" readonly="" class="ClassPH" onmouseover="StatusVolume(document.F.PHU1vol.value);" onfocus="StatusVolume(document.F.PHU1vol.value);"> by volume of washing soda or soda ash<br>
+or add <input type="text" name="PHU2oz" size="7" value="0" readonly="" class="ClassPH" onmouseover="StatusBorax(document.F.PHU2oz.value);" onfocus="StatusBorax(document.F.PHU2oz.value);"> by weight
+or <input type="text" name="PHU2vol" size="8" value="0" readonly="" class="ClassPH" onmouseover="StatusVolume(document.F.PHU2vol.value);" onfocus="StatusVolume(document.F.PHU2vol.value);"> by volume of borax.<br>
+Add <input type="text" name="PHD1oz" size="7" value="0" readonly="" class="ClassPH" onmouseover="StatusVolume(document.F.PHD1oz.value);" onfocus="StatusVolume(document.F.PHD1oz.value);"> of
+<select name="MApop" onchange="CalcPH(); SaveSettings();">
+<option>15.7% - 10° Baumé</option>
+<option>28.3% - 18° Baumé</option>
+<option selected="">31.45% - 20° Baumé</option>
+<option>34.6% - 22° Baumé</option>
+<option>14.5%</option>
+<option>29%</option>
+</select> muriatic acid<br>
+or add <input type="text" name="PHD2oz" size="8" value="0" readonly="" class="ClassPH" onmouseover="StatusWeight(document.F.PHD2oz.value);" onfocus="StatusWeight(document.F.PHD2oz.value);"> by weight
+or <input type="text" name="PHD2vol" size="7" value="0" readonly="" class="ClassPH" onmouseover="StatusVolume(document.F.PHD2vol.value);" onfocus="StatusVolume(document.F.PHD2vol.value);"> by volume of dry acid.<br>
+Note: pH calculations depend on TA and Borate. Results are approximate and can be off significantly for large pH changes. Changing your pH will also change your TA.</td></tr>
+
+<tr class="ClassPH">
+<td align="center"><input type="text" name="PHfrom" size="4" value="7.5" onchange="CalcPH(); CalcCSIfrom();"></td>
+<td align="center"><input type="text" name="PHto" size="4" value="7.5" onchange="CalcPH(); CalcCSIto();"></td>
+</tr>
+
+<tr class="ClassTA"><td rowspan="2" align="center">TA</td>
+<td colspan="2" style="height: 100%;"><center>Goal: <div id="TAgoal" style="display: inline;">70 to 90+</div></center></td>
+<td colspan="2" rowspan="2" align="left">Add <input type="text" name="TAoz" size="7" value="0" readonly="" class="ClassTA" onmouseover="StatusWeight(document.F.TAoz.value);" onfocus="StatusWeight(document.F.TAoz.value); GoTo(document.F.TAfrom);"> by weight
+or <input type="text" name="TAvol" size="8" value="0" readonly="" class="ClassTA" onmouseover="StatusVolume(document.F.TAvol.value);" onfocus="StatusVolume(document.F.TAvol.value);"> by volume of baking soda.<br>
+To lower TA you reduce pH to 7.0-7.2 with acid and then aerate to increase pH.<br>
+Note: Adding baking soda will also raise your pH just a little.</td></tr>
+
+<tr class="ClassTA">
+<td align="center"><input type="text" name="TAfrom" size="4" value="100" onchange="CalcTA(); CalcPH(); CalcCSIfrom();"></td>
+<td align="center"><input type="text" name="TAto" size="4" value="100" onchange="CalcTA(); CalcCSIto();"></td>
+</tr>
+
+<tr class="ClassCH"><td rowspan="2" align="center">CH</td>
+<td colspan="2" style="height: 100%;"><center>Goal: <div id="CHgoal" style="display: inline;">50 to 300</div></center></td>
+<td colspan="2" rowspan="2" align="left">Add <input type="text" name="CH1oz" size="8" value="0" readonly="" class="ClassCH" onmouseover="StatusWeight(document.F.CH1oz.value);" onfocus="StatusWeight(document.F.CH1oz.value); GoTo(document.F.CHfrom);"> by weight
+or <input type="text" name="CH1vol" size="9" value="0" readonly="" class="ClassCH" onmouseover="StatusVolume(document.F.CH1vol.value);" onfocus="StatusVolume(document.F.CH1vol.value);"> by volume of calcium chloride<br>
+or add <input type="text" name="CH2oz" size="8" value="0" readonly="" class="ClassCH" onmouseover="StatusWeight(document.F.CH2oz.value);" onfocus="StatusWeight(document.F.CH1oz.value);"> by weight
+or <input type="text" name="CH2vol" size="9" value="0" readonly="" class="ClassCH" onmouseover="StatusVolume(document.F.CH2vol.value);" onfocus="StatusVolume(document.F.CH2vol.value);"> by volume of calcium chloride dihydrate.<br>
+To lower CH you replace <input type="text" name="CHpcnt" size="5" value="some" readonly="" class="ClassCH" onmouseover="StatusPcnt(document.F.CHpcnt.value);" onfocus="StatusPcnt(document.F.CHpcnt.value);"> of the water with new water, with CH of <input type="text" name="CHfill" size="4" value="0" onchange="CalcCH(); SaveSettings();">.</td></tr>
+
+<tr class="ClassCH">
+<td align="center"><input type="text" name="CHfrom" size="4" value="260" onchange="CalcCH(); CalcCSIfrom();"></td>
+<td align="center"><input type="text" name="CHto" size="4" value="260" onchange="CalcCH(); CalcCSIto();"></td>
+</tr>
+
+<tr class="ClassCYA"><td rowspan="2" align="center">CYA</td>
+<td colspan="2" style="height: 100%;"><center>Goal: <div id="CYAgoal" style="display: inline;">30 to 50</div></center></td>
+<td colspan="2" rowspan="2" align="left">Add <input type="text" name="CYA1oz" size="7" value="0" readonly="" class="ClassCYA" onmouseover="StatusWeight(document.F.CYA1oz.value);" onfocus="StatusWeight(document.F.CYA1oz.value); GoTo(document.F.CYAfrom);"> by weight
+or <input type="text" name="CYA1vol" size="8" value="0" readonly="" class="ClassCYA" onmouseover="StatusVolume(document.F.CYA1vol.value);" onfocus="StatusVolume(document.F.CYA1vol.value);"> by volume of stabilizer<br>
+or add <input type="text" name="CYA2oz" size="8" value="0" readonly="" class="ClassCYA" onmouseover="StatusVolume(document.F.CYA2oz.value);" onfocus="StatusVolume(document.F.CYA2oz.value);"> of liquid stabilizer.<br>
+To lower CYA you replace <input type="text" name="CYApcnt" size="4" value="some" readonly="" class="ClassCYA" onmouseover="StatusPcnt(document.F.CYApcnt.value);" onfocus="StatusPcnt(document.F.CYApcnt.value);"> of the water with new water.<br>
+Note: It can take solid stabilizer up to a week to dissolve. It will also lower your pH.</td></tr>
+
+<tr class="ClassCYA">
+<td align="center"><input type="text" name="CYAfrom" size="4" value="40" onchange="CalcCYA(); CalcCSIfrom(); CalcSUG();"></td>
+<td align="center"><input type="text" name="CYAto" size="4" value="40" onchange="CalcCYA(); CalcCSIto();"></td>
+</tr>
+
+<tr class="ClassSALT"><td align="center">Salt</td><td align="center"><input type="text" name="SALTfrom" size="5" value="0" onchange="CalcSALT(); CalcCSIfrom();"></td><td align="center"><input type="text" name="SALTto" size="5" value="0" onchange="CalcSALT(); CalcCSIto();"></td><td colspan="2" align="left">Add <input type="text" name="SALTlb" size="8" value="0" readonly="" class="ClassSALT" onmouseover="StatusBags(document.F.SALTlb.value);" onfocus="StatusBags(document.F.SALTlb.value); GoTo(document.F.BORfrom);"> of salt.<br>
+To lower Salt you replace <input type="text" name="SALTpcnt" size="4" value="some" readonly="" class="ClassSALT" onmouseover="StatusPcnt(document.F.SALTpcnt.value);" onfocus="StatusPcnt(document.F.SALTpcnt.value);"> of the water with new water.</td></tr>
+
+<tr class="ClassBOR"><td align="center">Borate</td><td align="center"><input type="text" name="BORfrom" size="4" value="0" onchange="CalcBOR(); CalcPH(); CalcCSIfrom();"></td><td align="center"><input type="text" name="BORto" size="4" value="0" onchange="CalcBOR(); CalcCSIto();"></td><td colspan="2" align="left">Add <input type="text" name="BORoz" size="8" value="0" readonly="" class="ClassBOR" onmouseover="StatusBorax(document.F.BORoz.value);" onfocus="StatusBorax(document.F.BORoz.value); GoTo(document.F.TEMP);"> by weight
+or <input type="text" name="BORvol" size="9" value="0" readonly="" class="ClassBOR" onmouseover="StatusVolume(document.F.BORvol.value);" onfocus="StatusVolume(document.F.BORvol.value);"> by volume of <select name="BORpop" onchange="CalcBOR(); SaveSettings();">
+<option selected="">borax</option>
+<option>boric acid</option>
+<option>tetraborate pentahydrate</option>
+</select><br>
+and <input type="text" name="BORacid" size="8" value="0" readonly="" class="ClassBOR" onmouseover="StatusVolume(document.F.BORacid.value);" onfocus="StatusVolume(document.F.BORacid.value);"> of 31.45% muriatic acid to compensate for the pH increase.<br>
+To lower Borate you replace <input type="text" name="BORpcnt" size="4" value="some" readonly="" class="ClassBOR" onmouseover="StatusPcnt(document.F.BORpcnt.value);" onfocus="StatusPcnt(document.F.BORpcnt.value);">  of the water with new water.<br>
+Note: The pH should be tested and adjusted as needed after increasing the borate level.</td></tr>
+
+<tr class="ClassTEMP"><td align="center">Temp</td><td colspan="2" align="center"><nobr><input type="text" name="TEMP" size="3" value="84" onchange="CalcCSIfrom(); CalcCSIto();"><input type="text" name="TEMPunit" size="10" readonly="" value="Fahrenheit" class="ClassTEMP" onfocus="GoTo(document.F.SZwid);"></nobr></td><td colspan="2" class="ClassNORM" align="center"><input type="text" name="Status2" size="44" readonly="" class="ClassNORM"> Mouse over a field for detail</td></tr>
+
+<tr class="ClassCSI"><td align="center">CSI</td><td align="center"><input type="text" name="CSIfrom" size="5" value="0" readonly="" class="ClassCSI" onmouseover="StatusCSI(document.F.CSIfrom.value);" onfocus="StatusCSI(document.F.CSIfrom.value);"></td><td align="center"><input type="text" name="CSIto" size="5" value="0" readonly="" class="ClassCSI" onmouseover="StatusCSI(document.F.CSIto.value);" onfocus="StatusCSI(document.F.CSIto.value);"></td><td colspan="2" align="left">Calcite Saturation Index - requires pH, TA, CH, CYA, Temp, uses Borate, Salt<br>
+Less than -0.6 is suggestive of problems for plaster, tile, stone, and pebble pools.<br>
+Greater than 0.6 is suggestive of problems for all pools.</td></tr>
+
+<tr class="ClassSUG"><td colspan="3" align="center">Suggested FC Levels</td>
+<td colspan="2" align="left">
+<nobr>SWG:<input type="text" name="SUGFCswg" size="2" value="2" readonly="" class="ClassSUG" onmouseover="StatusSUG(&#39;SWG&#39;,document.F.SUGFCswg.value);" onfocus="StatusSUG(&#39;SWG&#39;,document.F.SUGFCswg.value);"></nobr>
+<nobr>Normal:<input type="text" name="SUGFCmin" size="2" value="3" readonly="" class="ClassSUG" onmouseover="StatusSUG(&#39;Minimum&#39;,document.F.SUGFCmin.value);" onfocus="StatusSUG(&#39;Minimum&#39;,document.F.SUGFCmin.value);">
+to <input type="text" name="SUGFCtarg" size="2" value="6" readonly="" class="ClassSUG" onmouseover="StatusSUG(&#39;Maximum&#39;,document.F.SUGFCtarg.value);" onfocus="StatusSUG(&#39;Maximum&#39;,document.F.SUGFCtarg.value);"></nobr>
+<nobr>Shock:<input type="text" name="SUGFCshock" size="2" value="15" readonly="" class="ClassSUG" onmouseover="StatusSUG(&#39;Shock&#39;,document.F.SUGFCshock.value);" onfocus="StatusSUG(&#39;Shock&#39;,document.F.SUGFCshock.value);"></nobr>
+<nobr>Mustard Algae Shock:<input type="text" name="SUGFCmust" size="2" value="24" readonly="" class="ClassSUG" onmouseover="StatusSUG(&#39;Mustard Algae Shock&#39;,document.F.SUGFCmust.value);" onfocus="StatusSUG(&#39;Mustard Algae Shock&#39;,document.F.SUGFCmust.value);"></nobr><br>
+Suggested target FC levels based on the current CYA level for outdoor pools.<br>
+Note: Be careful if your CYA is really and truly zero!</td></tr>
+
+<tr class="ClassGOALS"><td colspan="3" align="center">Suggested Goal Levels</td>
+<td colspan="2" align="left">Use suggested goal levels from:
+<select name="FROMpop" onchange="CalcGOAL(); SaveSettings();">
+<option selected="">Not Setup</option>
+<option>Traditional Pool</option>
+<option>TroubleFreePool.com</option>
+<option>Traditional Spa</option>
+</select><br>
+Primary source of chlorine:
+<select name="CHLORINEpop" onchange="CalcSUG(); CalcGOAL(); SaveSettings();">
+<option selected="">Not Setup</option>
+<option>Bleach</option>
+<option>SWG</option>
+<option>Trichlor</option>
+</select>
+Pool surface:
+<select name="SURFACEpop" onchange="CalcGOAL(); SaveSettings();">
+<option selected="">Not Setup</option>
+<option>Plaster</option>
+<option>Vinyl</option>
+<option>Fiberglass</option>
+</select><br>
+Note: Suggested goals are simply a starting point. There are many situations that are not covered by these basic guidelines.
+</td></tr>
+
+</tbody></table>
+
+<p><b>Notes</b><br>
+Unless you are SLAMing your pool, it is always best to add less than the full amount, wait a little while to allow the addition to mix thoroughly, and then retest to see where you are. Also, keep in mind that the volume of powders can vary from manufacturer to manufacturer.</p>
+
+<p><b>Estimating pool volume</b><br>
+A <input type="text" name="SZwid" size="3" value="0" onchange="CalcSZ();">
+<input type="text" name="SZunit1" size="2" value="ft" readonly="" onfocus="GoTo((document.F.SZpop.selectedIndex==2)?document.F.SZdeep:document.F.SZlen);"> wide
+by <input type="text" name="SZlen" size="3" value="0" onchange="CalcSZ();" style="color: rgb(0, 0, 0);">
+<input type="text" name="SZunit2" size="2" value="ft" readonly="" onfocus="GoTo(document.F.SZdeep);" style="color: rgb(0, 0, 0);"> long
+by <input type="text" name="SZdeep" size="3" value="0" onchange="CalcSZ();">
+<input type="text" name="SZunit3" size="2" value="ft" readonly="" onfocus="GoTo(document.F.SZvol);"> deep
+<select name="SZpop" onchange="CalcSZ();">
+<option selected="">rectangular</option>
+<option>oval</option>
+<option>round (ignores length)</option>
+</select> pool holds
+<input type="text" name="SZvol" size="14" value="0" readonly="">.<br>
+If the depth varies, use the average depth of the pool. A good approximation is the shallow end depth plus the deep end depth divided by two. Irregularly shaped pools can be approximated by estimating the average length and width and using rectangular.</p>
+
+<p><b>Effects of adding chemicals</b><br>
+Adding <input type="text" name="EFFoz" size="6" value="0" onchange="CalcEFF();" onmouseover="StatusEFF();"> <input type="text" name="EFFunit" size="3" value="oz" readonly=""> of <select name="EFFpop" onchange="CalcEFF();">
+<option>5.25% bleach</option>
+<option selected="">6% bleach</option>
+<option>8.25% bleach</option>
+<option>10% bleach</option>
+<option>12.5% bleach</option>
+<option>trichlor</option>
+<option>dichlor</option>
+<option>48% cal-hypo</option>
+<option>53% cal-hypo</option>
+<option>65% cal-hypo</option>
+<option>70% cal-hypo</option>
+<option>73% cal-hypo</option>
+<option>lithium hypochlorite</option>
+<option>chlorine gas</option>
+<option>15.7% muriatic acid</option>
+<option>31.45% muriatic acid</option>
+<option>dry acid</option>
+<option>washing soda or soda ash</option>
+<option>borax (20 Mule Team)</option>
+<option>sodium tetraborate pentahydrate</option>
+<option>boric acid</option>
+<option>caustic soda (lye)</option>
+<option>baking soda</option>
+<option>calcium chloride</option>
+<option>calcium chloride dihydrate</option>
+<option>stabilizer</option>
+<option>liquid stabilizer</option>
+<option>salt</option>
+</select> will <input type="text" name="EFFresult" size="80" onfocus="GoTo(document.F.SIZE);" readonly=""><br>
+Note: pH calculations are not exact. These numbers are only suggestive of the relative magnitude of the pH change you can expect. Small changes, +-0.4, with pH between 7.2-7.8, TA around 80-120, and Borate near zero will be approximately correct. The further you go from those ranges the less these pH changes will correspond to reality.</p>
+
+</form>
+
+<p>Copyright © 2007-2010 by Jason T. Linhart. Copyright © 2013-2014 by TroubleFreePool.com. All rights reserved. Updated April 20, 2014.</p>
+
+</td></tr></tbody></table>
+</center>
+<noscript>&lt;img src="/log____image.gif?summarylog&amp;amp;js=false" alt=""&gt;</noscript>
+
+
+</body></html>
