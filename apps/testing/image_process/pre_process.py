@@ -1,4 +1,5 @@
 import os
+import csv
 
 import numpy as np
 from PIL import Image, ImageEnhance
@@ -32,6 +33,9 @@ kelvin_table = {
 
 def pick_average_color(image, target_pos, sample_size=(16, 16)):
     """pick mean color at given point"""
+    if isinstance(image, str):
+        image = Image.open(image)
+
     data = np.asarray(image)
     sub = data[target_pos[0]:target_pos[0] + sample_size[0], target_pos[1]:target_pos[1] + sample_size[1]]
     target_rgb = [np.mean(sub[:, :, i]) for i in range(3)]
@@ -40,13 +44,19 @@ def pick_average_color(image, target_pos, sample_size=(16, 16)):
 
 
 def crop_area(image, target_pos, size=(64, 64)):
+    if isinstance(image, str):
+        image = Image.open(image)
+
     data = np.asarray(image)
     sub = data[target_pos[0]:target_pos[0] + size[0], target_pos[1]:target_pos[1] + size[1]]
     return Image.fromarray(sub)
 
 
-def white_balance(image, target_pos):
+def white_balance(image, target_pos, save_path=None):
     """calculate white balance according to WB point"""
+    if isinstance(image, str):
+        image = Image.open(image)
+
     data = np.asarray(image)
     # sample_size = (32, 32)  # reference sample size
     # sub = data[target_pos[0]:target_pos[0] + sample_size[0], target_pos[1]:target_pos[1] + sample_size[1]]
@@ -70,19 +80,36 @@ def white_balance(image, target_pos):
     result_image = enhancer.enhance(factor)
 
     target_color = pick_average_color(result_image, target_pos, (32, 32))
-    # print(3, target_color)
+    if save_path:
+        result_image.save(save_path)
 
-    return result_image
+    # print(3, target_color)
+    return result_image, target_color
+
+
+def export_white_balance(csv_path):
+    input_folder = '/Users/lorneluo/lorne/poolhub/dataset/train'
+    output_folder = '/Users/lorneluo/lorne/poolhub/dataset/white_balanced'
+    with open(csv_path) as csv_file:
+        reader = csv.reader(csv_file, delimiter=',')
+        next(reader, None)  # skip the headers
+        for row in reader:
+            img_path = os.path.join(input_folder, row[0])
+            wb_pos = (int(row[2]), int(row[1]))
+            save_path = os.path.join(output_folder, row[0])
+            _, balanced_color = white_balance(img_path, wb_pos, save_path)
+            print(row[0], balanced_color)
 
 
 def process_stripe_image(csv_file):
     """read color from image and save to csv"""
+    csv_base_folder = '/Users/lorneluo/lorne/poolhub/dataset/train'
     df = pd.read_csv(csv_file, dtype={'file_path': str,
                                       'white_balance_y': int,
                                       'white_balance_x': int,
                                       'color_y': int,
                                       'color_x': int,
-                                      'actual_value': int})
+                                      'actual_value': np.number})
     df = df.sort_values('actual_value')
 
     for i in tqdm(df.index):
@@ -91,12 +118,11 @@ def process_stripe_image(csv_file):
 
         value = df.xs(i)['actual_value']
         file_path = df.xs(i)['file_path']
-        path = os.path.join(base_folder, file_path)
+        path = os.path.join(csv_base_folder, file_path)
 
         # pick color from image and save to csv
         image = Image.open(path)
-        white_balanced_image = white_balance(image, wb_pos)
-        wb_color = pick_average_color(white_balanced_image, wb_pos, (16, 16))
+        white_balanced_image, wb_color = white_balance(image, wb_pos)
         value_color = pick_average_color(white_balanced_image, color_pos, (16, 16))
         df.at[i, 'value_color_r'] = value_color[0]
         df.at[i, 'value_color_g'] = value_color[1]
@@ -130,8 +156,11 @@ def scatter_chart(chemistry, df, elevation=None, azimuth=None):
         ax.text(df.at[i, 'value_color_r'],
                 df.at[i, 'value_color_g'],
                 df.at[i, 'value_color_b'],
-                df.at[i, 'actual_value'], size=20, zorder=10, color='k')
+                f"{df.at[i, 'actual_value']}", size=8, zorder=10, color='k',
+                # f"{df.at[i, 'actual_value']}_{df.at[i, 'file_path']}", size=8, zorder=10, color='k'
+                )
 
     ax.view_init(elevation, azimuth)
     plt.savefig(f'{chemistry}_scatter.png')
     plt.show()
+    return ax

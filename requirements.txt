@@ -18,4 +18,15 @@ django-tenants==3.2.1
 psycopg2==2.8.6
 Pillow==8.1.0
 colour-science==0.3.16
-numpy==1.20.1
+django-oscar[sorl-thumbnail]==2.1.1
+numpy==1.19.5
+pandas==1.2.4
+tqdm==4.60.0
+ipypb==0.5.2
+scipy
+lazypredict
+scikit-learn==0.23.1
+torch~=1.8.1
+torchvision~=0.9.1
+torchvision~=0.9.1
+torchaudio~=0.8.1
