@@ -1,6 +1,8 @@
 import os
 import csv
+from collections import OrderedDict
 
+import cv2
 import numpy as np
 from PIL import Image, ImageEnhance
 from tqdm.notebook import tqdm
@@ -31,16 +33,47 @@ kelvin_table = {
     10000: (204, 219, 255)}
 
 
-def pick_average_color(image, target_pos, sample_size=(16, 16)):
-    """pick mean color at given point"""
+def calc_color(img_arr):
+    """exclude too high or too low point"""
+    width, height, _ = img_arr.shape
+    sum_color = []
+    for x in range(width):
+        for y in range(height):
+            color = img_arr[x][y]
+            sum_color.append((sum(color), color))
+
+    sum_color = sorted(sum_color, key=lambda x: x[0])
+    length = len(sum_color)
+    middle_colors = sum_color[int(length * 0.35):int(length * 0.45)]
+    middle_colors = [c[1] for c in middle_colors]
+
+    b = np.mean([c[0] for c in middle_colors])
+    g = np.mean([c[1] for c in middle_colors])
+    r = np.mean([c[2] for c in middle_colors])
+    return (int(r), int(g), int(b))
+
+
+def pick_average_color(image, target_pos, sample_size=(32, 32)):
+    """pick mean color at given point, for PIL.iImage"""
     if isinstance(image, str):
         image = Image.open(image)
 
     data = np.asarray(image)
+
     sub = data[target_pos[0]:target_pos[0] + sample_size[0], target_pos[1]:target_pos[1] + sample_size[1]]
     target_rgb = [np.mean(sub[:, :, i]) for i in range(3)]
     target_color = tuple(map(round, target_rgb))  # RGB float to int
     return target_color
+
+
+def pick_average_color2(img_arr, target_pos, sample_size=(32, 32)):
+    """pick mean color at given point, for cv2"""
+    data = cv2.imread(img_arr) if isinstance(img_arr, str) else img_arr
+    half_size = int(sample_size[0] / 2)
+
+    sub = data[target_pos[1] - half_size:target_pos[1] + half_size, target_pos[0] - half_size:target_pos[0] + half_size]
+    color = calc_color(sub)
+    return color
 
 
 def crop_area(image, target_pos, size=(64, 64)):
@@ -58,11 +91,11 @@ def white_balance(image, target_pos, save_path=None):
         image = Image.open(image)
 
     data = np.asarray(image)
-    # sample_size = (32, 32)  # reference sample size
+    # sample_size = (16, 16)  # reference sample size
     # sub = data[target_pos[0]:target_pos[0] + sample_size[0], target_pos[1]:target_pos[1] + sample_size[1]]
     # target_color = [np.mean(sub[:, :, i]) for i in range(3)]
     # print(target_color)
-    target_color = pick_average_color(image, target_pos, (32, 32))
+    target_color = pick_average_color(image, target_pos, (16, 16))
     # print(1, target_color)
 
     # calculate white balance
@@ -71,7 +104,7 @@ def white_balance(image, target_pos, save_path=None):
         wb[:, :, i] /= target_color[i] / float(max(target_color))
     wb_image = Image.fromarray(wb.astype(np.uint8))
 
-    target_color = pick_average_color(wb_image, target_pos, (32, 32))
+    target_color = pick_average_color(wb_image, target_pos, (16, 16))
     # print(2, target_color)
 
     # brightness
@@ -79,7 +112,7 @@ def white_balance(image, target_pos, save_path=None):
     factor = 200 / target_color[0]  # brightens the image
     result_image = enhancer.enhance(factor)
 
-    target_color = pick_average_color(result_image, target_pos, (32, 32))
+    target_color = pick_average_color(result_image, target_pos, (16, 16))
     if save_path:
         result_image.save(save_path)
 
@@ -98,7 +131,7 @@ def export_white_balance(csv_path):
             wb_pos = (int(row[2]), int(row[1]))
             save_path = os.path.join(output_folder, row[0])
             _, balanced_color = white_balance(img_path, wb_pos, save_path)
-            print(row[0], balanced_color)
+            # print(row[0], balanced_color)
 
 
 def process_stripe_image(csv_file):
