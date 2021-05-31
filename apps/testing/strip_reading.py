@@ -1,5 +1,9 @@
+import os
+
 import colour
 from django.utils.module_loading import import_string
+
+from apps.testing.image_process.strip_detect import detect_strip, pick_strip_color
 
 DEFAULT_STRIP_NAME = 'aquacheck_7in1'
 
@@ -67,3 +71,19 @@ def read_chemistry(image, chemistry, strip_name=DEFAULT_STRIP_NAME, return_linea
         return min(distances, key=distances.get)
     else:
         return cal_linear_value(color_band, distances)
+
+
+def process_strip_image(org_img_path, debug=False):
+    file_name = os.path.basename(org_img_path)
+    name, ext = os.path.splitext(file_name)
+    debug_folder = '/Users/lorneluo/lorne/poolhub/dataset/debug/'
+
+    strip_crop_save = os.path.join(debug_folder, f'{name}.1{ext}') if debug else None
+    max_score, max_box, crop_img = detect_strip(org_img_path, strip_crop_save)
+
+    if max_score:
+        print(org_img_path)
+        strip_color_save = os.path.join(debug_folder, f'{name}.2{ext}')
+        pick_strip_color(crop_img, file_name, strip_color_save)
+    else:
+        print('No strip found', org_img_path)

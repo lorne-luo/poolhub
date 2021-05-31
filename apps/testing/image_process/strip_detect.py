@@ -4,6 +4,7 @@ from datetime import datetime
 
 import torch
 import cv2
+import csv
 import numpy as np
 from csv import reader
 from pathlib import Path
@@ -16,7 +17,7 @@ from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog, DatasetCatalog
 from detectron2.data.detection_utils import read_image
 
-from apps.testing.image_process.pre_process import crop_area, pick_average_color2
+from apps.testing.image_process.pre_process import crop_area, pick_average_color2, white_balance2
 
 
 def get_predictor():
@@ -119,10 +120,10 @@ def verify_inference():
         new_path = os.path.join(output_folder, f'{score:.2f}_{filename}')
 
         os.rename(output_img, new_path)
-        print(filename, scores, boxes)
+        # print(filename, scores, boxes)
 
 
-def detect_strip(input_path, output_folder=None):
+def detect_strip(input_path, output_path=None):
     """detect strip and save cropped image to output folder
     input_path='/Users/lorneluo/lorne/poolhub/dataset/white_balanced/File_003.jpeg'
     output_folder='/Users/lorneluo/lorne/poolhub/dataset/crop'
@@ -141,7 +142,7 @@ def detect_strip(input_path, output_folder=None):
 
     height = int(max_box[3] - max_box[1])
     width = int(max_box[2] - max_box[0])
-    top_left_x = int(max_box[1] - width) if max_box[1] > width else max_box[1]
+    top_left_x = int(max_box[1] - width) if max_box[1] > width else int(max_box[1])
     top_left = (top_left_x, int(max_box[0]))
     bottom_right = (int(max_box[3]) + width * 3, int(max_box[2]))
 
@@ -151,14 +152,17 @@ def detect_strip(input_path, output_folder=None):
     # print(crop_img)
     # print(crop_img.shape)
 
-    if output_folder:
-        output_path = os.path.join(output_folder, filename)
+    if output_path:
         cv2.imwrite(output_path, crop_img)
     return max_score, max_box, crop_img
 
 
-def pick_strip_color(file_name, strip_img, output_folder=None):
-    """pick 7colors from cropped strip img"""
+def locate_strip_points(strip_img, filename=None):
+    """
+    1. locate top and bottom of strip
+    2. calculate 7 color points
+    3. white balance
+    """
     height = strip_img.shape[0]
     width = strip_img.shape[1]
 
@@ -167,7 +171,7 @@ def pick_strip_color(file_name, strip_img, output_folder=None):
 
     # find top edge
     for i in range(height):
-        is_first_color = [150 < sum(strip_img[i + j, x]) < 400 for j in range(16)]
+        is_first_color = [150 < sum(strip_img[i + j, x]) < 380 for j in range(16)]
         if sum(is_first_color) > 12:
             top_y = i
             break
@@ -175,11 +179,16 @@ def pick_strip_color(file_name, strip_img, output_folder=None):
     # find bottom edge
     for i in range(height):
         y = height - 1 - i
-        is_last_color = [150 < sum(strip_img[y - j, x]) < 350 for j in range(16)]
+        is_last_color = [150 < sum(strip_img[y - j, x]) < 330 for j in range(16)]
         if sum(is_last_color) > 12:
             bottom_y = y
             break
     # print(top_y, bottom_y)
+
+    # white balance
+    wb_y = int((top_y + bottom_y) / 2)
+    # print(top_y, bottom_y, wb_y)
+    strip_img, _ = white_balance2(strip_img, (x, wb_y))
 
     # y of 7 color position
     y_factors = [0.04183813443072702,
@@ -188,9 +197,101 @@ def pick_strip_color(file_name, strip_img, output_folder=None):
                  0.5899903978052127,
                  0.7782908093278463,
                  0.9574759945130316]
+    # white balance point
 
     height = bottom_y - top_y
     y_list = [int(height * i + top_y) for i in y_factors]
+
+    # if output_path:
+    #     cv2.imwrite(output_path, strip_img)
+    #     folder, ext = os.path.splitext(file_name)
+    #
+    #     output_path = f'{folder[:-2]}.3.{ext}'
+
+    # 7 color's coordinate
+    color_points = [(x, y) for y in y_list]
+    wb_xy = (x, wb_y)
+    top_bottom_edges = (top_y, bottom_y)
+    return top_bottom_edges, color_points, wb_xy
+
+
+def pick_colors(strip_img, color_points, top_bottom_edges, wb_xy, output_path=None):
+    """white balance first and pick colors"""
+    top_y, bottom_y = top_bottom_edges
+    height = strip_img.shape[0]
+    width = strip_img.shape[1]
+    middle_x = int(width / 2)
+    strip_img, _ = white_balance2(strip_img, wb_xy)
+
+    colors = []
+    # print(color_points)
+    for x, y in color_points:
+        color = pick_average_color2(strip_img, (x, y))
+        colors.append(color)
+        if output_path:
+            strip_img = cv2.drawMarker(strip_img, (x, y), color=(0, 255, 0), markerType=cv2.MARKER_CROSS,
+                                       markerSize=32, thickness=2)
+
+    if output_path:
+        # middle wb point
+        strip_img = cv2.drawMarker(strip_img, wb_xy, color=(0, 255, 0), markerType=cv2.MARKER_DIAMOND,
+                                   markerSize=32, thickness=2)
+        # top
+        strip_img = cv2.drawMarker(strip_img, (middle_x, top_y), color=(0, 255, 0), markerType=cv2.MARKER_DIAMOND,
+                                   markerSize=32, thickness=2)
+        # bottom
+        strip_img = cv2.drawMarker(strip_img, (middle_x, bottom_y), color=(0, 255, 0), markerType=cv2.MARKER_DIAMOND,
+                                   markerSize=32, thickness=2)
+        cv2.imwrite(output_path, strip_img)
+    return colors
+
+
+def pick_strip_color(strip_img, filename=None, output_path=None):
+    """pick 7 colors from cropped strip img"""
+    height = strip_img.shape[0]
+    width = strip_img.shape[1]
+
+    x = int(width / 2)
+    top_y, bottom_y = 0, height
+
+    # find top edge
+    for i in range(height):
+        is_first_color = [150 < sum(strip_img[i + j, x]) < 380 for j in range(16)]
+        if sum(is_first_color) > 12:
+            top_y = i
+            break
+
+    # find bottom edge
+    for i in range(height):
+        y = height - 1 - i
+        is_last_color = [150 < sum(strip_img[y - j, x]) < 330 for j in range(16)]
+        if sum(is_last_color) > 12:
+            bottom_y = y
+            break
+    # print(top_y, bottom_y)
+
+    # white balance
+    wb_y = int((top_y + bottom_y) / 2)
+    # print(top_y, bottom_y, wb_y)
+    strip_img, _ = white_balance2(strip_img, (x, wb_y))
+
+    # y of 7 color position
+    y_factors = [0.04183813443072702,
+                 0.2199917695473251,
+                 0.4051769547325103,
+                 0.5899903978052127,
+                 0.7782908093278463,
+                 0.9574759945130316]
+    # white balance point
+
+    height = bottom_y - top_y
+    y_list = [int(height * i + top_y) for i in y_factors]
+
+    # if output_path:
+    #     cv2.imwrite(output_path, strip_img)
+    #     folder, ext = os.path.splitext(file_name)
+    #
+    #     output_path = f'{folder[:-2]}.3.{ext}'
 
     # 7 color's coordinate
     colors = []
@@ -199,24 +300,30 @@ def pick_strip_color(file_name, strip_img, output_folder=None):
     for x, y in color_points:
         color = pick_average_color2(strip_img, (x, y))
         colors.append(color)
-        if output_folder:
+        if output_path:
             strip_img = cv2.drawMarker(strip_img, (x, y), color=(0, 255, 0), markerType=cv2.MARKER_CROSS,
                                        markerSize=32, thickness=2)
-    if output_folder:
+
+    if output_path:
+        # middle wb point
+        strip_img = cv2.drawMarker(strip_img, (x, wb_y), color=(0, 255, 0), markerType=cv2.MARKER_DIAMOND,
+                                   markerSize=32, thickness=2)
+        # top
         strip_img = cv2.drawMarker(strip_img, (x, top_y), color=(0, 255, 0), markerType=cv2.MARKER_DIAMOND,
                                    markerSize=32, thickness=2)
+        # bottom
         strip_img = cv2.drawMarker(strip_img, (x, bottom_y), color=(0, 255, 0), markerType=cv2.MARKER_DIAMOND,
                                    markerSize=32, thickness=2)
-        debug_path = os.path.join('/Users/lorneluo/lorne/poolhub/dataset/crop/', file_name)
-        cv2.imwrite(debug_path, strip_img)
-
+        cv2.imwrite(output_path, strip_img)
     return colors
 
 
 def test_color_pick():
     csv_path = '/Users/lorneluo/lorne/poolhub/apps/color_band_training/ph.csv'
-    base_folder = '/Users/lorneluo/lorne/poolhub/dataset/white_balanced/'
-    output_folder = '/Users/lorneluo/lorne/poolhub/dataset/crop/'
+    base_folder = '/Users/lorneluo/lorne/poolhub/dataset/train/'
+    debug_folder = '/Users/lorneluo/lorne/poolhub/dataset/debug/'
+    output_csv_path = os.path.join('/Users/lorneluo/lorne/poolhub/dataset/csv',
+                                   f"{datetime.now().strftime('%Y-%m-%d %H%M%S')}.csv")
     file_names = []
 
     with open(csv_path, 'r') as read_obj:
@@ -225,25 +332,58 @@ def test_color_pick():
         for row in csv_reader:
             file_names.append(row[0])
 
-    for file_name in file_names:
-        file_path = os.path.join(base_folder, file_name)
-        try:
-            max_score, max_box, crop_img = detect_strip(file_path)
-            if max_score:
-                print(file_path)
-                pick_strip_color(file_name, crop_img, output_folder)
-            else:
-                print('No strip found', file_path)
-        except Exception as ex:
-            print(ex, file_path)
+    # write colors into csv
+    with open(output_csv_path, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',',
+                            quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        # write header
+        writer.writerow(['path', 'top_y', 'bottom_y', 'wb_y', 'wb_y',
+                         'th_color', 'tc_color', 'fc_color', 'ph_color', 'ta_color', 'ca_color'])
+
+        for file_name in file_names:
+            file_path = os.path.join(base_folder, file_name)
+            name, ext = os.path.splitext(file_name)
+
+            try:
+                #debug_img_path1 = os.path.join(debug_folder, f'{name}.1{ext}')
+                debug_img_path1 = None
+                max_score, max_box, crop_img = detect_strip(file_path,
+                                                            debug_img_path1)
+                if max_score:
+                    print(file_path)
+                    debug_img_path2 = os.path.join(debug_folder, f'{name}.2{ext}')
+                    top_bottom_edges, color_points, wb_point = locate_strip_points(crop_img, file_name)
+                    colors = pick_colors(crop_img, color_points, top_bottom_edges, wb_point,
+                                         debug_img_path2)
+                    print(colors)
+                    writer.writerow(
+                        [debug_img_path2, top_bottom_edges[0], top_bottom_edges[1], wb_point[0], wb_point[1],
+                         str(colors[0]), str(colors[1]), str(colors[2]), str(colors[3]), str(colors[4]),
+                         str(colors[5])]
+                    )
+                else:
+                    print('No strip found', file_path)
+            except Exception as ex:
+                print('Error', file_path, ex)
 
 
 def test_single_color(file_path):
     file_name = os.path.basename(file_path)
-    output_folder = '/Users/lorneluo/lorne/poolhub/dataset/crop/'
-    max_score, max_box, crop_img = detect_strip(file_path)
+    name, ext = os.path.splitext(file_name)
+
+    debug_folder = '/Users/lorneluo/lorne/poolhub/dataset/debug/'
+
+    strip_crop_save = os.path.join(debug_folder, f'{name}.1{ext}')
+
+    max_score, max_box, crop_img = detect_strip(file_path, strip_crop_save)
     if max_score:
         print(file_path)
-        pick_strip_color(file_name, crop_img, output_folder)
+        strip_color_save = os.path.join(debug_folder, f'{name}.2{ext}')
+        colors = pick_strip_color(crop_img, file_name, strip_color_save)
+        print(colors)
     else:
         print('No strip found', file_path)
+
+
+def export_training_csv():
+    pass

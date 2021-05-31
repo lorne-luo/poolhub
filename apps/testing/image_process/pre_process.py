@@ -9,8 +9,6 @@ from tqdm.notebook import tqdm
 import pandas as pd
 import matplotlib.pyplot as plt
 
-base_folder = '/Users/lorneluo/lorne/poolhub/'
-
 kelvin_table = {
     1000: (255, 56, 0),
     1500: (255, 109, 0),
@@ -31,6 +29,9 @@ kelvin_table = {
     9000: (214, 225, 255),
     9500: (208, 222, 255),
     10000: (204, 219, 255)}
+
+base_folder = '/Users/lorneluo/lorne/poolhub/'
+debug_folder = '/Users/lorneluo/lorne/poolhub/dataset/debug'
 
 
 def calc_color(img_arr):
@@ -66,13 +67,18 @@ def pick_average_color(image, target_pos, sample_size=(32, 32)):
     return target_color
 
 
-def pick_average_color2(img_arr, target_pos, sample_size=(32, 32)):
+def pick_average_color2(img_arr, target_pos, sample_size=(32, 32), average=True):
     """pick mean color at given point, for cv2"""
     data = cv2.imread(img_arr) if isinstance(img_arr, str) else img_arr
     half_size = int(sample_size[0] / 2)
 
-    sub = data[target_pos[1] - half_size:target_pos[1] + half_size, target_pos[0] - half_size:target_pos[0] + half_size]
-    color = calc_color(sub)
+    if average:
+        sub = data[target_pos[1] - half_size:target_pos[1] + half_size,
+              target_pos[0] - half_size:target_pos[0] + half_size]
+        color = calc_color(sub)
+    else:
+        color = data[target_pos[1], target_pos[0]]
+
     return color
 
 
@@ -86,7 +92,7 @@ def crop_area(image, target_pos, size=(64, 64)):
 
 
 def white_balance(image, target_pos, save_path=None):
-    """calculate white balance according to WB point"""
+    """calculate white balance according to WB point, for PIL.Image"""
     if isinstance(image, str):
         image = Image.open(image)
 
@@ -96,12 +102,14 @@ def white_balance(image, target_pos, save_path=None):
     # target_color = [np.mean(sub[:, :, i]) for i in range(3)]
     # print(target_color)
     target_color = pick_average_color(image, target_pos, (16, 16))
-    # print(1, target_color)
+    # print(1, target_color, max(target_color))
 
     # calculate white balance
     wb = data.astype(float)
     for i in range(3):
-        wb[:, :, i] /= target_color[i] / float(max(target_color))
+        factor = target_color[i] / float(max(target_color))
+        # print(f'Factor={factor}, {type(wb)}')
+        wb[:, :, i] /= factor
     wb_image = Image.fromarray(wb.astype(np.uint8))
 
     target_color = pick_average_color(wb_image, target_pos, (16, 16))
@@ -118,6 +126,33 @@ def white_balance(image, target_pos, save_path=None):
 
     # print(3, target_color)
     return result_image, target_color
+
+
+def white_balance2(image, target_pos, save_path=None):
+    """calculate white balance according to WB point, for opencv"""
+    if isinstance(image, str):
+        data = cv2.imread(image)
+    else:
+        data = image
+
+    target_color = pick_average_color2(data, target_pos, (16, 16))
+    # print(1, target_color, max(target_color))
+
+    # calculate white balance
+    wb_img = data.astype(float)
+    max_channel = max(target_color)
+    bright_factor = 200 / max_channel
+    for i in range(3):
+        factor = target_color[2 - i] / float(max(target_color)) / bright_factor
+        # print(f'Factor={factor}')
+        wb_img[:, :, i] /= factor
+
+    # target_color = pick_average_color2(wb, target_pos, (16, 16))
+    # print(2, target_color)
+    if save_path:
+        cv2.imwrite(save_path, wb_img)
+    # print(3, target_color)
+    return wb_img, target_color
 
 
 def export_white_balance(csv_path):
