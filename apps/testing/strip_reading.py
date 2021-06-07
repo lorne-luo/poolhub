@@ -83,7 +83,7 @@ def process_strip_image(org_img_path, debug=False):
 
     if max_score:
         print(org_img_path)
-        strip_color_save = os.path.join(debug_folder, f'{name}.2{ext}')
+        strip_color_save = os.path.join(debug_folder, f'{name}.9{ext}')
         pick_strip_color(crop_img, file_name, strip_color_save)
     else:
         print('No strip found', org_img_path)

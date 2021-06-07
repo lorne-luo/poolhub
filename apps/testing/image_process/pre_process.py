@@ -147,7 +147,7 @@ def white_balance2(image, target_pos, save_path=None):
         # print(f'Factor={factor}')
         wb_img[:, :, i] /= factor
 
-    # target_color = pick_average_color2(wb, target_pos, (16, 16))
+    # target_color = pick_average_color2(wb_img, target_pos, (16, 16))
     # print(2, target_color)
     if save_path:
         cv2.imwrite(save_path, wb_img)
