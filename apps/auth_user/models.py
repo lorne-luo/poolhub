@@ -9,7 +9,7 @@ class User(AbstractUser):
     first_name = models.CharField(_('first name'), max_length=255, blank=True)
     last_name = models.CharField(_('last name'), max_length=255, blank=True)
     email = models.EmailField(_('email address'), blank=False, null=False, unique=True)
-    phone_number = models.CharField(_('phone number'), max_length=16, blank=False)
+    phone_number = models.CharField(_('phone number'), max_length=16, blank=True)
     is_staff = models.BooleanField(
         _('staff status'),
         default=False,

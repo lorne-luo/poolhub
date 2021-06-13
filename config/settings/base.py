@@ -27,6 +27,7 @@ SITE_ID = 1
 SHARED_APPS = (
     'django_tenants',  # mandatory
     'apps.auth_user',  # you must list the app where your tenant model resides in
+    'apps.tenant',
 
     'django.contrib.contenttypes',
     # everything below here is optional
@@ -42,7 +43,7 @@ SHARED_APPS = (
 
 TENANT_APPS = (
     # The following Django contrib apps must be in TENANT_APPS
-    # 'django.contrib.contenttypes',
+    'django.contrib.contenttypes',
 
     # your tenant-specific apps
     'apps.customer',
@@ -52,15 +53,23 @@ TENANT_APPS = (
 
 INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
 
-TENANT_MODEL = "pool_shop.PoolShop"
+TENANT_MODEL = "tenant.Tenant"
 
-TENANT_DOMAIN_MODEL = "pool_shop.Domain"
+TENANT_DOMAIN_MODEL = "tenant.Domain"
+
+TENANT_SUBFOLDER_PREFIX = "tenant"
+
+PUBLIC_SCHEMA_NAME = 'public'
+
+# PUBLIC_SCHEMA_URLCONF = 'myproject.urls_public'
+
 
 # MIDDLEWARE CONFIGURATION
 # ------------------------------------------------------------------------------
 
 MIDDLEWARE = [
     'django_tenants.middleware.main.TenantMainMiddleware',
+    'django_tenants.middleware.TenantSubfolderMiddleware',
     # django
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

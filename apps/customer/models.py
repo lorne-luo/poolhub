@@ -1,7 +1,5 @@
 from django.db import models
 
-# Create your models here.
-from django_tenants.models import TenantMixin
 from apps.auth_user.models import User
 from django.utils.translation import gettext_lazy as _
 

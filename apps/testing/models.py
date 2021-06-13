@@ -3,11 +3,9 @@ import uuid
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
-# Create your models here.
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from django_tenants.models import TenantMixin
 
 from core.aws.s3 import AWSS3URLs
 
@@ -54,6 +52,6 @@ class Testing(models.Model):
         return None
 
 
-class TestResult(TenantMixin):
+class TestResult(models.Model):
     customer = models.ForeignKey('customer.Customer', blank=False, null=False, on_delete=models.CASCADE)
     testing = models.ForeignKey('testing.Testing', blank=False, null=False, on_delete=models.CASCADE)
