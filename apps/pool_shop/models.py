@@ -1,7 +1,8 @@
-from django.db import models
+from django.db import models, connection
 
 # Create your models here.
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from apps.auth_user.models import User
@@ -19,6 +20,7 @@ class Staff(User):
 
 class PoolShop(models.Model):
     tenant = models.OneToOneField('tenant.Tenant', blank=False, null=False, on_delete=models.CASCADE)
+    schema_name = models.CharField(max_length=63, blank=True)
 
     abn = models.CharField(_('abn'), max_length=11, blank=False, validators=[NumberOnlyValidator()])
     phone_number = models.CharField(_('phone number'), max_length=16, blank=True)
@@ -33,3 +35,7 @@ class PoolShop(models.Model):
     is_active = models.BooleanField(_('active'), default=True, help_text='Active or in active.')
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 
+    def set_schema(self):
+        schema_name = self.schema_name
+        if schema_name:
+            connection.set_schema(schema_name)
