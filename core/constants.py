@@ -133,3 +133,9 @@ class PRODUCT_TYPE:
 class ActionType:
     REPLACE_WATER = 'REPLACE_WATER'
     CONSAULT_POOLSHOP = 'CONSAULT_POOLSHOP'
+
+
+class ColorFormat:
+    HSV = 'hsv'
+    RGB = 'rgb'
+

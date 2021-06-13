@@ -33,3 +33,4 @@ torchaudio~=0.8.1
 streamlit~=0.82.0
 pandas-profiling~=3.0.0
 streamlit_pandas_profiling~=0.1.2
+rpyc==5.0.1

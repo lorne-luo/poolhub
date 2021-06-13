@@ -28,6 +28,8 @@ if uploaded_file is not None:
     def load_csv():
         csv = pd.read_csv(uploaded_file)
         return csv
+
+
     df = load_csv()
     pr = ProfileReport(df, explorative=True)
     st.header('**Input DataFrame**')
@@ -41,11 +43,11 @@ else:
         # Example data
         @st.cache
         def load_data():
-            a = pd.DataFrame(
-                np.random.rand(100, 5),
-                columns=['a', 'b', 'c', 'd', 'e']
-            )
+            csv_path='/Users/lorneluo/lorne/poolhub/dataset/debug/annotation/rgb_value.csv'
+            a = pd.read_csv(csv_path, usecols=[0,4,8,12,16,20,24])
             return a
+
+
         df = load_data()
         pr = ProfileReport(df, explorative=True)
         st.header('**Input DataFrame**')
@@ -53,3 +55,7 @@ else:
         st.write('---')
         st.header('**Pandas Profiling Report**')
         st_profile_report(pr)
+
+if __name__ == '__main__':
+    # streamlit run apps/color_band_training/data_exploratory.py
+    pass

@@ -49,6 +49,6 @@ def color_label(color):
 
 def rgb_to_hsv(r, g, b):
     r, g, b = r / 255.0, g / 255.0, b / 255.0
-    r, g, b = colorsys.rgb_to_hsv(r, g, b)
-    r, g, b = round(r, 5), round(g, 5), round(b, 5)
-    return r, g, b
+    h,s,v = colorsys.rgb_to_hsv(r, g, b)
+    h,s,v = round(h, 6), round(s, 6), round(v, 6)
+    return h,s,v
