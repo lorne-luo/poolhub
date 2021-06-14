@@ -139,3 +139,16 @@ class ColorFormat:
     HSV = 'hsv'
     RGB = 'rgb'
 
+
+class UserRole:
+    SHOP_MANAGER = 'SHOP_MANAGER'
+    CUSTOMER = 'CUSTOMER'
+    SUPER_ADMIN = 'SUPER_ADMIN'
+
+    @classmethod
+    def get_choices(cls):
+        return (
+            (cls.SHOP_MANAGER, cls.SHOP_MANAGER),
+            (cls.CUSTOMER, cls.CUSTOMER),
+            (cls.SUPER_ADMIN, cls.SUPER_ADMIN),
+        )
