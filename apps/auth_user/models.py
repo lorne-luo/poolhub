@@ -3,6 +3,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from core.constants import UserRole
+
 
 class User(AbstractUser):
     """user for authentication"""
@@ -23,6 +25,9 @@ class User(AbstractUser):
             'Unselect this instead of deleting accounts.'
         ),
     )
+    role = models.CharField(verbose_name="user role", choices=UserRole.get_choices(), max_length=32, blank=True,
+                            null=False)
+    tenant = models.ForeignKey('tenant.Tenant', blank=True, null=True, on_delete=models.SET_NULL)
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 
     EMAIL_FIELD = 'email'
