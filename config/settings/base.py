@@ -57,12 +57,12 @@ TENANT_MODEL = "tenant.Tenant"
 
 TENANT_DOMAIN_MODEL = "tenant.Domain"
 
-TENANT_SUBFOLDER_PREFIX = "tenant"
+TENANT_SUBFOLDER_PREFIX = "t"
 
 PUBLIC_SCHEMA_NAME = 'public'
 
-# PUBLIC_SCHEMA_URLCONF = 'myproject.urls_public'
-
+ROOT_URLCONF = 'config.urls_tenants'
+PUBLIC_SCHEMA_URLCONF = 'config.urls_public'
 
 # MIDDLEWARE CONFIGURATION
 # ------------------------------------------------------------------------------
