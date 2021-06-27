@@ -12,6 +12,7 @@ urlpatterns = [
 
     path(r'', include('apps.auth_user.urls')),
     path(r'', include('apps.pool_shop.urls')),
+    path(r'', include('apps.testing.urls')),
 
     # Site map
     url(r'^BingSiteAuth\.xml$', TemplateView.as_view(template_name='./BingSiteAuth.xml',  # File in template folder
