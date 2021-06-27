@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+
+{% block body_class %}{{ block.super }} pinax-stripe-invoices{% endblock %}
+
+{% block content %}
+
+    test page
+
+    <img src="{{object.image.url }}" />
+    <p>{{ object.th_value }}</p>
+    <p>{{ object.fc_value }}</p>
+    <p>{{ object.tc_value }}</p>
+    <p>{{ object.ph_value }}</p>
+    <p>{{ object.ta_value }}</p>
+    <p>{{ object.ca_value }}</p>
+
+
+{% endblock %}

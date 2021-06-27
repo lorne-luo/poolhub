@@ -28,6 +28,8 @@ SHARED_APPS = (
     'django_tenants',  # mandatory
     'apps.auth_user',  # you must list the app where your tenant model resides in
     'apps.tenant',
+    'apps.testing',
+    'apps.customer',
 
     'django.contrib.contenttypes',
     # everything below here is optional
@@ -46,9 +48,7 @@ TENANT_APPS = (
     'django.contrib.contenttypes',
 
     # your tenant-specific apps
-    'apps.customer',
     'apps.pool_shop',
-    'apps.testing',
 )
 
 INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]

@@ -38,6 +38,9 @@ class PoolShop(models.Model):
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     objects = PoolShopManager()
 
+    def __str__(self):
+        return self.name
+
     def get_schema_name(self):
         if self.schema_name:
             return self.schema_name

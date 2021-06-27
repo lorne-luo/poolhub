@@ -8,7 +8,7 @@
     test page
     <form action="" method="post" class="formContainer" autocomplete="off" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
-        {{ form }}
+        {{ form.as_p }}
         <input type="Submit" value="Submit">
     </form>
 {% endblock %}
