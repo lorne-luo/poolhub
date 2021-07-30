@@ -19,3 +19,4 @@ staticfiles/
 .pytest_cache/
 dataset/
 data/
+media/

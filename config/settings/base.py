@@ -28,8 +28,8 @@ SHARED_APPS = (
     'django_tenants',  # mandatory
     'apps.auth_user',  # you must list the app where your tenant model resides in
     'apps.tenant',
-    'apps.testing',
     'apps.customer',
+    'apps.training',
 
     'django.contrib.contenttypes',
     # everything below here is optional
@@ -49,6 +49,7 @@ TENANT_APPS = (
 
     # your tenant-specific apps
     'apps.pool_shop',
+    'apps.testing',
 )
 
 INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
@@ -62,14 +63,17 @@ TENANT_SUBFOLDER_PREFIX = "t"
 PUBLIC_SCHEMA_NAME = 'public'
 
 ROOT_URLCONF = 'config.urls_tenants'
+
 PUBLIC_SCHEMA_URLCONF = 'config.urls_public'
+
+SHOW_PUBLIC_IF_NO_TENANT_FOUND = False
 
 # MIDDLEWARE CONFIGURATION
 # ------------------------------------------------------------------------------
 
 MIDDLEWARE = [
-    'django_tenants.middleware.main.TenantMainMiddleware',
-    'django_tenants.middleware.TenantSubfolderMiddleware',
+    # 'django_tenants.middleware.TenantSubfolderMiddleware',
+    'apps.tenant.middleware.CustomTenantMiddleware',
     # django
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -125,8 +129,6 @@ DEBUG = env.bool('DEBUG', False)
 
 # URL Configuration
 # ------------------------------------------------------------------------------
-
-ROOT_URLCONF = 'config.urls'
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
@@ -198,7 +200,8 @@ STATICFILES_DIRS = [
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_FOLDER = 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_FOLDER)
 MEDIA_URL = '/media/'
 
 # TEST

@@ -25,7 +25,7 @@ class User(AbstractUser):
             'Unselect this instead of deleting accounts.'
         ),
     )
-    role = models.CharField(verbose_name="user role", choices=UserRole.get_choices(), max_length=32, blank=True,
+    role = models.CharField(verbose_name="user role", choices=UserRole.CHOICES, max_length=32, blank=True,
                             null=False)
     tenant = models.ForeignKey('tenant.Tenant', blank=True, null=True, on_delete=models.SET_NULL)
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)

@@ -7,6 +7,8 @@ from django.db import models, connection
 class Domain(DomainMixin):
     pass
 
+    def __str__(self):
+        return self.domain
 
 class Tenant(TenantMixin):
     name = models.CharField(max_length=100)

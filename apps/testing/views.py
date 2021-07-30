@@ -2,21 +2,9 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import FormView, CreateView, DetailView
 
-from apps.testing.forms import TestingCreateForm, TrainTestingCreateForm
-from apps.testing.models import Testing, TrainTesting
+from apps.testing.forms import TestingCreateForm
+from apps.testing.models import Testing
 
-
-class TrainStripUploadView(CreateView):
-    template_name = 'testing/train_stripe_upload.html'
-    form_class = TrainTestingCreateForm
-    model = TrainTesting
-
-    def get_success_url(self):
-        return reverse('testing-train_stripe_detail',args=[self.object.id])
-
-class TrainStripDetailView(DetailView):
-    template_name = 'testing/train_stripe_detail.html'
-    model = TrainTesting
 
 
 class StripUploadView(CreateView):

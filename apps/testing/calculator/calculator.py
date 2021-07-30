@@ -1,3 +1,4 @@
+# calculate how many product needed
 import math
 from apps.testing.calculator.target import get_target
 from apps.testing.dataclasses import ChemistrySolution, Product, Action

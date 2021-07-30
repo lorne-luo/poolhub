@@ -4,15 +4,16 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.generic import TemplateView
-from django.urls import path
+from django.urls import path, reverse
+from apps.testing import views as testing_views
 
 urlpatterns = [
-    url(r'^django-admin/', admin.site.urls),
+    path(r'django-admin/', admin.site.urls),
     # url(r'^django-admin/django-ses/', include('django_ses.urls')),
 
-    path(r'', include('apps.auth_user.urls')),
-    path(r'', include('apps.pool_shop.urls')),
-    path(r'', include('apps.testing.urls')),
+    path(r'auth_user/', include('apps.auth_user.urls', namespace='auth_user')),
+    path(r'pool_shop/', include('apps.pool_shop.urls', namespace='pool_shop')),
+    path(r'training/', include('apps.training.urls', namespace='training')),
 
     # Site map
     url(r'^BingSiteAuth\.xml$', TemplateView.as_view(template_name='./BingSiteAuth.xml',  # File in template folder

@@ -3,12 +3,11 @@ from django.urls import path, include, reverse
 
 from apps.testing import views
 
-urlpatterns = [
-    path(r'testing/train_stripe_upload/<int:pk>/', views.TrainStripDetailView.as_view(),
-         name='testing-train_stripe_detail'),
-    url(r'testing/train_stripe_upload/', views.TrainStripUploadView.as_view(), name='testing-train_stripe_upload'),
+app_name = 'testing'
 
-    path(r'testing/stripe_upload/<int:pk>/', views.StripDetailView.as_view(),
-         name='testing-stripe_view_detail'),
-    url(r'testing/stripe_upload/', views.StripUploadView.as_view(), name='testing-stripe_upload'),
+urlpatterns = [
+    # tenant stripe upload
+    path(r'stripe_upload/<int:pk>/', views.StripDetailView.as_view(), name='stripe_detail'),
+    path(r'stripe_upload/', views.StripUploadView.as_view(), name='stripe_upload'),
+
 ]

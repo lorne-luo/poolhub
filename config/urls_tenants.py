@@ -6,15 +6,12 @@ from django.contrib import admin
 from django.views.generic import TemplateView
 from django.urls import path
 
-
 urlpatterns = [
-    # url(r'^django-admin/', admin.site.urls),
-    #
-    # path('', include('apps.auth_user.urls')),
+    path(r'django-admin/', admin.site.urls),
+    path(r'testing/', include('apps.testing.urls', namespace='testing')),
     #
     # path(r'shop/', include('apps.pool_shop.urls')),
     # # path('', include('apps.payment.urls')),
     # url(r'405/$', TemplateView.as_view(template_name='404.html'), name='405'),
 
 ]
-
