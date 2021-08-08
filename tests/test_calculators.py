@@ -40,7 +40,7 @@ def test_ta_too_high():
 
 def test_ch_too_low():
     solution = calc_ch(10000, 250, 260)
-    assert solution.chemistry == Chemistry.CH.value
+    assert solution.chemistry == Chemistry.TH.value
     assert len(solution.options) == 2
     assert solution.options[0][0].value == 111
     assert solution.options[0][0].unit == Unit.GRAM
@@ -52,7 +52,7 @@ def test_ch_too_low():
 
 def test_ch_too_high():
     solution = calc_ch(10000, 260, 250)
-    assert solution.chemistry == Chemistry.CH.value
+    assert solution.chemistry == Chemistry.TH.value
     assert isinstance(solution.options[0][0], Action)
     assert solution.options[0][0].type == ActionType.REPLACE_WATER
     assert solution.options[0][0].value == 4

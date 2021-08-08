@@ -214,7 +214,7 @@ def calc_ch(volume, now, target):
         print(calcium_chloride_dihydrate_volume)
 
         return ChemistrySolution(
-            chemistry=Chemistry.CH.value,
+            chemistry=Chemistry.TH.value,
             options=[
                 [
                     # add Hardness Enhancer (namely Calcium Enhancer and Calcium Chloride) in grans
@@ -236,7 +236,7 @@ def calc_ch(volume, now, target):
 
             # replace_percent = replace_percent / 100
             return ChemistrySolution(
-                chemistry=Chemistry.CH.value,
+                chemistry=Chemistry.TH.value,
                 options=[
                     [
                         # dump and refill water.

@@ -52,7 +52,7 @@ POOL_TYPE_CHOICES = (
 # CHEMISTRY NAME
 class Chemistry(Enum):
     PH = 'PH'
-    CH = 'CalciumHardness'  # total hardness
+    TH = 'CalciumHardness'  # total hardness
     FC = 'FreeChlorine'
     TC = 'TotalChlorine'
     TB = 'TotalBromine'
@@ -67,7 +67,7 @@ TARGET_RANGE = {
         'mean': 7.4,
         'max': 7.6,
     },
-    Chemistry.CH.value: {  # ppm
+    Chemistry.TH.value: {  # ppm
         'min': 150,
         'mean': 200,
         'max': 250,

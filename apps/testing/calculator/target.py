@@ -8,7 +8,7 @@ SPA_TARGET = {
         'min': 7.4,
         'max': 7.8,
     },
-    Chemistry.CH: {  # ppm
+    Chemistry.TH: {  # ppm
         'min': 120,
         'max': 200,
     },
@@ -35,7 +35,7 @@ TRADITIONAL_POOL_TARGET = {
         'min': 7.2,
         'max': 7.8,
     },
-    Chemistry.CH: {  # ppm
+    Chemistry.TH: {  # ppm
         'min': 220,
         'max': 320,
     },
@@ -84,11 +84,11 @@ def get_target(pool_type, surface, chlorine_source):
         target[Chemistry.TA]['max'] = 120
 
     if surface == POOL_SURFACE_PLASTER:
-        target[Chemistry.CH]['min'] = 250
-        target[Chemistry.CH]['max'] = 350
+        target[Chemistry.TH]['min'] = 250
+        target[Chemistry.TH]['max'] = 350
     elif surface == POOL_SURFACE_VINYL:
-        target[Chemistry.CH]['min'] = 50
-        target[Chemistry.CH]['max'] = 300
+        target[Chemistry.TH]['min'] = 50
+        target[Chemistry.TH]['max'] = 300
 
     # calculate idea value for all chemistry
     for che, values in target.items():
