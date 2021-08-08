@@ -139,7 +139,7 @@ def load_model(model_folder):
     return model, scaler
 
 
-def predict(color_format, color):
+def predict(color,color_format=ColorFormat.RGB):
     scaled_color = np.array([color])
     if color_format == ColorFormat.RGB:
         scaled_color = scaled_color / 255

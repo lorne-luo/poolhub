@@ -65,8 +65,8 @@ def predict(chemistry, color, color_format=ColorFormat.RGB):
 
 def predict_one(chemistry, color, color_format=ColorFormat.RGB):
     client = rpyc.connect("localhost", 18861)
-    prediction = client.predict(chemistry, color, color_format)
-    client.close()
+    prediction = client.root.predict(chemistry, color, color_format)
+    # client.close()
     return prediction
 
 
@@ -74,7 +74,7 @@ def predict_all(colors: dict, color_format=ColorFormat.RGB):
     client = rpyc.connect("localhost", 18861)
     result = {}
     for chemistry, color in colors.items():
-        prediction = client.predict(chemistry, color, color_format)
+        prediction = client.root.predict(chemistry, color, color_format)
         result[chemistry] = prediction
-    client.close()
+    # client.close()
     return result

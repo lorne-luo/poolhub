@@ -51,7 +51,7 @@ class ColorPredictionService(rpyc.Service):
         print(f'Prediction model loaded: {list(self.release_models.keys())}')
 
     def get_model(self, chemistry, color_format):
-        model_key = f"{chemistry}_{color_format}"
+        model_key = f"{chemistry.lower()}_{color_format}"
         model, scaler = self.release_models.get(model_key, (None, None))
         if model and scaler:
             return model, scaler
@@ -80,6 +80,6 @@ class ColorPredictionService(rpyc.Service):
 
 
 if __name__ == "__main__":
-    t = OneShotServer(ColorPredictionService(), port=18861)
+    t = ThreadedServer(ColorPredictionService(), port=18861)
     print('Service running.')
     t.start()
