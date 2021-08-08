@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 class TrainTesting(models.Model):
     original_image = models.ImageField(blank=False, null=False, verbose_name='original image',
                                        upload_to=os.path.join('strip', 'train'))
-    crop_coordinate = models.JSONField( verbose_name='crop coordinate',blank=True, null=True)
+    crop_coordinate = models.JSONField(verbose_name='crop coordinate', blank=True, null=True)
     strip_crop = models.ImageField(blank=True, null=True, verbose_name='image',
                                    upload_to=os.path.join('strip', 'train'))
 
@@ -42,7 +42,7 @@ class TrainTesting(models.Model):
                                    validators=[MinValueValidator(0), MaxValueValidator(300)])
 
     # prediction
-    ch_predict = models.IntegerField(verbose_name="calcium hardness", blank=True, null=True,
+    th_predict = models.IntegerField(verbose_name="total hardness", blank=True, null=True,
                                      validators=[MinValueValidator(0), MaxValueValidator(1000)])
     fc_predict = models.DecimalField(verbose_name="free chlorine", max_digits=4, decimal_places=2, blank=True,
                                      null=True,
@@ -58,3 +58,9 @@ class TrainTesting(models.Model):
                                      validators=[MinValueValidator(0), MaxValueValidator(240)])
     ca_predict = models.IntegerField(verbose_name="cyanuric acid", blank=True, null=True,
                                      validators=[MinValueValidator(0), MaxValueValidator(300)])
+
+    def __str__(self):
+        return self.original_image.name if self.original_image else self.id
+
+    def set_crop_coordinate(self,arr):
+        self.crop_coordinate=[int(i) for i in arr]
