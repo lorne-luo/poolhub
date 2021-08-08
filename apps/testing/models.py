@@ -58,4 +58,5 @@ class Testing(models.Model):
             return AWSS3URLs.get_url(self.original_image)
         return None
 
-
+    def set_crop_coordinate(self,arr):
+        self.crop_coordinate=[int(i) for i in arr]
